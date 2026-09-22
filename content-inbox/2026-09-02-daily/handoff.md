@@ -64,10 +64,18 @@
 ## 海报交付
 - 复盘海报 HTML：poster-20260902.html
 - 复盘海报 PNG：poster-20260902.png（1080×2000，向水而行·增强对比度背景·用户 09-03 定版方案）
-- 复盘海报 SHA-256：05c9ad7bfa31edc8b62d299f38655e24dd8d1ad0fd6498cf56bd3b84605191e0
+- 复盘海报 SHA-256：e9cbf4b1d7f341c3ad51f8da446ace0dd1fa19fd4f7677ee1fa9734e5bc9d4e8
+- HTML SHA-256：f6dfcbf310550ebbe47d45c1f781c6c16985aa2d9cd7d408fc420065c810cb2c
+- 输入 JSON SHA-256：2952e107386f72c9cc1aade41aedc651e1a357c7aef1cc2bc8e74276f4bdf6f9
 - 背景：nanhai-toward-water-v1-contrast-v1.png（SHA `608AE893…64CD2`，来源：画布库 `nanhai-artfield-toward-water/`，增强对比度版 = Color 0.88 + Contrast 1.18 + Brightness 1.05，文字直接压底图装饰、不硬塞空白区）
 - 引流板：无（小红书渠道暂停，不产出引流版）
-- QA：passed（1080×2000 像素核验；DOM 区块度量各区块 bottom≤2000，内容最低 y=1923、底部余量 77px 无裁切）
+- QA：passed
+  - 像素核验：1080×2000 ✓
+  - 内容高度探针（2026-09-22 回补时重跑）：内容包围盒 x[118,990] y[157,1922]，最底非底色 y=1922，底部余量 **78px**，PASS ✓（原记录为 DOM 区块度量口径的 77px，两者相差 1px，互为印证）
+  - 一致性核验（2026-09-22）：`verify_poster_png.py` → 内容行 y[160,1929]、余量 70px、与探针差 8px、内容末行以下残留内容行 0，**PASS 成品图与当前 HTML 一致** ✓
+  - 底图对比度探针（2026-09-22 重跑，带 `--footer-scrim "255,252,245,0.78"`）：**PASS**；**页脚 5.79:1（阈值 3.5，已合成页脚衬底）**——回补前该底图为 **2.54:1 不足** ✓
+  - 水平包围盒 x[118,990]：页脚衬底令 footer 左右各外扩 12px（未缩放），仍在 1080 画布内 ✓
+  - **2026-09-22 页脚衬底回补**：向 HTML `:root` 注入 `--footer-bg:rgba(255,252,245,.78)`、`footer` 规则改为带衬底版（`margin:11px -12px 0;padding:7px 12px 6px;background:var(--footer-bg);border-radius:8px`），按备份重渲 PNG。**输入 JSON 与文案零改动**、**模板 CSS 未动**（仅改本包 HTML 实例）。改名前的旧 HTML/PNG 备份在 `backups/posters-footer-backfill-20260922/`
 
 ## 博客母版
 - MDX：`src/content/reviews/daily/2026-09-02.mdx`（status: draft，7 段完整 + **确认原文** 标记）
@@ -86,5 +94,6 @@
 - CTA 字面量：仅「关注『心猿意马的羊』 · 搜索站内」，无二维码/网址/微信号
 
 ## 未完成事项
+- **public 副本与本源已不一致（用户拍板「线上暂不动」）**：`public/images/posters/poster-20260902.png` 仍是回补前的旧图（SHA `05c9ad7b…`），与本包新 `poster-20260902.png`（`e9cbf4b1…`）不同。2026-09-22 统一回补时用户明确「先只改本地，线上暂不动」，故不重拷、不重新部署；日后若要访客看到新页脚，需 B 侧重拷该图并重新构建发布。
 - 雪球发布时回填博客链接（主站部署批次升 public 后统一填）
 - 雪球发布前目检向水而行增强版边缘（3:4 cover 裁剪后左右约 210px 装饰被裁，文字均在中带安全区）

@@ -25,7 +25,8 @@ DISCLAIMER = "本站内容仅为个人市场复盘、投资交易学习和研究
 XUEQIU_TAGS = "#A股复盘 #每日复盘 #交易复盘"
 XUEQIU_TAGS_WEEKLY = "#A股复盘 #周度复盘 #交易复盘"
 XHS_TAGS = "#A股 #每日复盘 #ETF #投资日记"
-# 通用入口 = 个人博客（唯一引流去向）；当前为内网临时地址，真实域名上线后替换 channels.ts 的 blogUrl 并同步此处
+# 通用入口 = 个人博客（唯一引流去向）；**站点已于 2026-09-22 上线**，此处与
+# `src/data/channels.ts` 的 blogUrl 保持一致（域名 fupanxinyuan.com），改域名时两处同步。
 BLOG_URL = "https://www.fupanxinyuan.com"
 BLOG_INTRO = "A 股每日复盘、历史归档与判断校准的唯一入口"
 
@@ -80,7 +81,7 @@ def build_xueqiu(fm, sec, date_stem, month_day):
 > 状态：draft（待用户确认后发布）
 > 来源：博客 MDX + `content-inbox/{handoff_id}/handoff.md`（已确认终稿）
 > 用途：雪球发布 = 主图海报 + 突出重点短评（完整长文在个人博客）；题眼/摘要/边界口径逐字取自博客，不新增、不改义。
-> 发布时：上传 `{poster}`（1080×2000 复盘海报）；正文尾部已附博客入口（当前为内网临时地址，真实域名上线后替换）。
+> 发布时：上传 `{poster}`（1080×2000 复盘海报）；正文尾部已附博客入口（站点已上线）。
 
 ---
 
@@ -126,7 +127,7 @@ def build_xueqiu(fm, sec, date_stem, month_day):
 - [ ] 数据来源标注为「公开市场数据」，未补造具体行情提供方
 - [ ] 无持仓、仓位、账户金额、收益截图或具体买卖动作
 - [ ] 免责声明全文与 `docs/content/site-copy.md` 第 7 节一致
-- [ ] 博客入口链接无误（当前为内网临时地址 {BLOG_URL}，真实域名上线后替换）
+- [ ] 博客入口链接无误（站点已上线：{BLOG_URL}）
 - [ ] 发布到雪球「文章」而非「讨论」
 """
 

@@ -17,6 +17,10 @@
   三栏每格 ≤5 行；事实每条 2–3 行；金句 1–2 行。
 - 金句含 `<br>`（双行）时，`<br>` 会额外产生一个 width=0 的 rect。本脚本已过滤零宽
   rect（2026-09-18 修），否则 W38 的 2 行金句会被误报成 3 行、看起来超出 1–2 行上限。
+- 三栏的 `cols` 按**唯一 top 计数**（2026-09-22 修），不用 `rects().length`——三栏每格是
+  「label + value」两个内联元素、各产生独立 rect，旧口径会把**单行项数成 5 行**
+  （0922 实测：`cols [[5,5,5],…]` 看似每格 5 行，而 `cols_rects` 明细显示每格只有一个
+  唯一 y、全部单行）。判断三栏是否折行亦可直接看明细有无「<-- 折行」标记。
 """
 
 from __future__ import annotations
@@ -48,8 +52,12 @@ window.addEventListener('load', () => {
   out.h1_lines = Math.round(h1.getBoundingClientRect().height / SHEET_SCALE / 47.5 * 100) / 100;
   out.lead = document.querySelector('.lead') ? lines(document.querySelector('.lead')) : 0;
   out.facts = Array.from(document.querySelectorAll('.bullets li')).map(lines);
+  // 三栏 <li> 内含 label/value 等多个内联元素，每个内联盒各产生一个 rect，
+  // rects().length 数的是内联盒数而非行数（2026-09-22 实测：单行项被数成 5）。
+  // 改按唯一 top 计数，与 cols_rects 明细同口径。
   out.cols = Array.from(document.querySelectorAll('.note-col')).map(
-    c => Array.from(c.querySelectorAll('li')).map(lines));
+    c => Array.from(c.querySelectorAll('li')).map(
+      li => new Set(rects(li).map(x => Math.round(x.top))).size));
   out.cols_rects = Array.from(document.querySelectorAll('.note-col')).map(
     c => Array.from(c.querySelectorAll('li')).map(li => rects(li).map(
       x => Math.round(x.left) + '..' + Math.round(x.right) + '@' + Math.round(x.top))));
