@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "check": "astro check",
-    "build": "astro build",
+    "build": "astro build && node scripts/prune-unpublished-posters.mjs",
     "build:preview": "astro build --mode preview --outDir dist-preview",
+    "prune:posters": "node scripts/prune-unpublished-posters.mjs",
     "preview": "astro preview"
   },
   "dependencies": {
