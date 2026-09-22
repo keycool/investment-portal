@@ -12,10 +12,15 @@
 WCAG 对比度；同时打印段内 p5 / min 亮度供参考。
 
 用法:
-    python probe_background_contrast.py <background.png> [--dark]
+    python probe_background_contrast.py <background.png> [--dark] [--footer-scrim R,G,B,A]
 
     --dark  深底画布（配 build_poster.py --theme dark 的浅色字），不指定则按
             浅底画布（默认 paper 主题的深色字）计算。
+    --footer-scrim  页脚已有 HTML 衬底时**必须传**，形如 "255,252,245,0.78"
+            （浅底画布）或 "32,44,80,0.72"（深底画布），与模板 --footer-bg 一致。
+            脚本会把衬底按 alpha 合成到页脚段的背景亮度上再算对比度——否则会按
+            「无衬底」误报 NOT PASS（2026-09-22 雾海微明实例：无衬底 2.01:1 →
+            加衬底后达标）。
 
 退出码 0 = 全部段落达标；1 = 存在不足段落。
 
@@ -68,6 +73,13 @@ def contrast(fg_gray: int, bg_gray: int) -> float:
     return (hi + 0.05) / (lo + 0.05)
 
 
+def gray_from_rgb(r: int, g: int, b: int) -> int:
+    """把颜色换算成「WCAG 等效灰度」，与 FG 表同一口径（自检：#a61f1f -> 85）。"""
+    y = 0.2126 * rel_lum_gray(r) + 0.7152 * rel_lum_gray(g) + 0.0722 * rel_lum_gray(b)
+    v = 12.92 * y if y <= 0.0031308 else 1.055 * (y ** (1 / 2.4)) - 0.055
+    return int(round(min(255.0, max(0.0, v * 255))))
+
+
 def cover_canvas(path: Path) -> Image.Image:
     im = Image.open(path).convert("L")
     s = max(CANVAS_W / im.width, CANVAS_H / im.height)
@@ -83,7 +95,21 @@ def main() -> int:
     )
     ap.add_argument("background", type=Path)
     ap.add_argument("--dark", action="store_true", help="深底画布（浅色字）")
+    ap.add_argument("--footer-scrim", default=None,
+                    help='页脚衬底 "R,G,B,alpha"，与模板 --footer-bg 一致；有衬底时必须传')
     a = ap.parse_args()
+
+    scrim = None
+    if a.footer_scrim:
+        parts = [p.strip() for p in a.footer_scrim.split(",")]
+        if len(parts) != 4:
+            print('--footer-scrim 需形如 "255,252,245,0.78"', file=sys.stderr)
+            return 2
+        scrim = (int(parts[0]), int(parts[1]), int(parts[2]), float(parts[3]))
+        if not (0.0 <= scrim[3] <= 1.0):
+            print("--footer-scrim 的 alpha 需在 0~1", file=sys.stderr)
+            return 2
+        scrim = (gray_from_rgb(int(parts[0]), int(parts[1]), int(parts[2])), float(parts[3]))
 
     bg_path = a.background.resolve()
     if not bg_path.exists():
@@ -95,9 +121,13 @@ def main() -> int:
     theme = "dark（浅色字）" if a.dark else "paper（深色字）"
     fgs = FG["dark" if a.dark else "paper"]
     x0, x1 = TEXT_BOX
+    suggest_scrim = "32,44,80,0.72" if a.dark else "255,252,245,0.78"
 
     print(f"背景 {bg_path.name} -> cover 到 {CANVAS_W}x{CANVAS_H} | 主题 {theme}")
-    print(f"文字框 x[{x0},{x1}]；背景取段内亮度均值，前景色用 WCAG 等效灰度近似\n")
+    print(f"文字框 x[{x0},{x1}]；背景取段内亮度均值，前景色用 WCAG 等效灰度近似")
+    if scrim:
+        print(f"页脚衬底已启用：等效灰度 {scrim[0]} / alpha {scrim[1]}")
+    print()
 
     header = f"{'段落':<12}{'y区间':<13}{'背景 mean/p5/min':<20}" + "".join(
         f"{k + '对比度':<14}" for k in fgs
@@ -113,6 +143,10 @@ def main() -> int:
                 vals.append(px[x, y])
         if not vals:
             continue
+        scrimmed = bool(scrim) and "页脚" in name
+        if scrimmed:
+            s_gray, al = scrim
+            vals = [int(round(v * (1 - al) + s_gray * al)) for v in vals]
         vals.sort()
         n = len(vals)
         mean = sum(vals) / n
@@ -139,6 +173,7 @@ def main() -> int:
         print(
             f"{name:<12}{f'{y0}-{y1}':<13}{f'{mean:.0f}/{p5}/{vals[0]}':<20}"
             + "".join(f"{c:<14}" for c in cells)
+            + ("  ← 已合成页脚衬底" if scrimmed else "")
         )
 
     print()
@@ -151,7 +186,10 @@ def main() -> int:
             print(f"  - {name} 的{k}仅 {r:.2f}:1（需 >= {need}:1）")
         print("  修法（都需用户确认，不得擅自执行）：")
         print("   1) 底图下段渐变提亮（画布 y1500 起与纯白 alpha 0→0.72 线性混合，会洗淡底图）")
-        print("   2) 模板 footer 加浅色衬底（不动底图，跨背景通用）")
+        print("   2) 模板 footer 加衬底（不动底图，跨背景通用）——**已实装**：模板 CSS 变量")
+        print("      --footer-bg 随主题取色（paper 暖白 / dark 深靛，由 build_poster.py 的")
+        print("      --theme 切换）。加衬底后**重跑本脚本必须带 --footer-scrim**，否则按无衬底")
+        print(f"      误报：--footer-scrim \"{suggest_scrim}\"")
         return 1
 
     print("结论：PASS —— 各段落对比度均达标" + ("（含边缘项，见上）" if edges else ""))

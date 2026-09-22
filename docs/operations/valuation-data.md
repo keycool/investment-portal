@@ -3,9 +3,9 @@ document_id: VALUATION-DATA-STANDARD
 document_role: external_review_workbench_instruction
 parent_document: skills/daily-review-notebook-poster/references/handoff-contract.md
 version: "1.0"
-updated_at: "2026-08-23"
+updated_at: "2026-09-22"
 data_root: "D:\\CC\\pe\\data\\"
-erp_live_url: "https://index-compare-analysis.vercel.app/data/merged_signal.json"
+erp_live_url: "https://erp.fupanxinyuan.com/data/merged_signal.json"
 ---
 
 # 周复盘「估值」数据运行规范
@@ -15,7 +15,11 @@ erp_live_url: "https://index-compare-analysis.vercel.app/data/merged_signal.json
 ## 0. 快速结论
 
 - **估值数据读本地**：`D:\CC\pe\data\` 下的 JSON（宽基 PE / 国债 / 波动率 / 换手集中度 / 红利股息率）。
-- **ERP 读线上，不建本地副本**：博客工作区中的同步副本已经删除，直接读取 Vercel 正式站的数据。
+- **ERP 读线上，不建本地副本**：博客工作区中的同步副本已经删除，直接读取线上正式站
+  `erp.fupanxinyuan.com` 的数据。
+  > **2026-09-22 域名迁移**：ERP 站已从 `index-compare-analysis.vercel.app` 迁到
+  > `erp.fupanxinyuan.com`。旧 `*.vercel.app` 域名**国内 DNS 已污染、实测 HTTP 000 不可达**，
+  > 任何脚本、文档、skill 里若还写旧地址必须替换，否则估值回填会直接取不到数据。
 - **数据断在某天 = 那天晚上 GitHub Actions 没等到当天数据**（preflight skip），不是策略坏了。
 - **回填飞书用 lark-cli**，`block_replace` 只能单 block 逐个改，改完必须重新 fetch 核验。
 - **只填事实，不替你写"偏贵/便宜"判断**（SOP 永久边界）。
@@ -36,8 +40,11 @@ erp_live_url: "https://index-compare-analysis.vercel.app/data/merged_signal.json
 ### 1.1 ERP 必须读线上
 
 ```bash
-curl -s "https://index-compare-analysis.vercel.app/data/merged_signal.json"
+curl -s "https://erp.fupanxinyuan.com/data/merged_signal.json"
 ```
+
+> 旧地址 `https://index-compare-analysis.vercel.app/data/merged_signal.json` 已废弃
+> （国内 DNS 污染，实测超时不可达）。
 
 - 取 `components.erp.latest_signal`（含 `equity_premium`=ERP、`pe_ttm`、`bond_yield` 等）。
 - 不要在 `D:\CC\shared` 重新建立 `merged_signal.json` 等同步副本；它们容易断同步，权威口径始终以线上正式数据及其日期为准。

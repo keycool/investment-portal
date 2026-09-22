@@ -16,7 +16,7 @@
 - 不能从旧 PNG 反推完整文章。
 - 缺失来源、日期或数值保持缺失，不得猜测。
 - 工具名称可以变化，但“读取 → 人工确认 → 一次性写入 → 重新读取复核”的语义不能变化。
-- 估值数据（周复盘或含「估值」栏的母稿）：数值只来自 `docs/operations/valuation-data.md` 定义的数据源——本地 `D:\CC\pe\data\` JSON（宽基 PE / 国债 / 波动率 / 换手集中度 / 红利股息率）与线上 ERP `https://index-compare-analysis.vercel.app/data/merged_signal.json`。只填事实数字并带数据日期，不生成“偏贵 / 便宜”判断；断档保持缺失不猜测。
+- 估值数据（周复盘或含「估值」栏的母稿）：数值只来自 `docs/operations/valuation-data.md` 定义的数据源——本地 `D:\CC\pe\data\` JSON（宽基 PE / 国债 / 波动率 / 换手集中度 / 红利股息率）与线上 ERP `https://erp.fupanxinyuan.com/data/merged_signal.json`（2026-09-22 起；旧 `index-compare-analysis.vercel.app` 国内 DNS 已污染不可达）。只填事实数字并带数据日期，不生成“偏贵 / 便宜”判断；断档保持缺失不猜测。
 
 ## 确认门槛
 
