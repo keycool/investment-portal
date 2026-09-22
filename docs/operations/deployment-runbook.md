@@ -132,10 +132,14 @@
 执行顺序：
 
 1. 确认 [客户甲] 已完成 GitHub 授权（或自己建好空私有仓库并把地址给小金）
-2. 小金在 `investment-portal` 初始化 git 仓库并首次提交
-   - 已确认 `.gitignore` 到位（排除 `node_modules/`、`dist/`、`dist-preview/`、`.astro/`）
-   - **需确认**：`content-inbox/` 是否要一起进仓库（含复盘草稿与内部交接文档）
-3. 推送到 GitHub 私有仓库
+2. ✅ **已完成**：git 仓库已在 `investment-portal` 初始化并完成首次提交
+   - 提交 `7b199ed`，239 文件 / 83.1 MB，分支 `main`
+   - `.gitignore`：排除 `node_modules/`、`dist/`、`dist-preview/`、`.astro/`，以及
+     `content-inbox/` 的 png/jpg/webp/gif/html（约 184 MB 生产中间产物，不入库，本地保留）
+   - `.gitattributes`：文本统一 LF；**`.bat` / `.cmd` 强制 CRLF**（否则 `启动博客.bat` 会被转 LF 而失效）
+   - 仓库级身份 `keycool <keycool@163.com>`
+3. ⬜ 推送到 GitHub 私有仓库（**待客户甲提供仓库地址 / 授权**）
+   - 本机无 `gh` CLI、无 SSH 私钥；但已装 Git Credential Manager，HTTPS 推送时应弹窗授权
 4. [客户甲] 在 Vercel → Add New → Project → 导入该仓库
    - Framework 自动识别为 **Astro**；Build Command `npm run build`；Output `dist`
    - 本博客是 `output: "static"` 纯静态站，**不需要装任何 adapter**
@@ -192,18 +196,36 @@
 ## 附：已完成 / 待完成
 
 **已完成（2026-09-22）**
-- ✅ 17 篇 preview 复盘升级为 public（内容总数：public 18 / draft 4），备份于
+- ✅ 技术前提全部实测验证
+- ✅ 17 篇 preview 复盘升级为 public（public 18 / draft 4），备份于
   `D:\CC\shared\backups\reviews-20260922-before-promote\`
 - ✅ `npm run check` 0 错误、`npm run build` 26 页通过
-- ✅ 技术前提全部实测验证
+- ✅ 域名 `fupanxinyuan.com` **实名认证通过**（12:15:08），NS 已生效（`dns21/dns22.hichina.com`）
+- ✅ git 仓库已建立：首次提交 `7b199ed`，**239 文件 / 83.1 MB**，分支 `main`（**尚未配置远端**）
 
 **待客户甲**
-- ⬜ 注册域名 + 实名认证
-- ⬜ Vercel 四个项目绑域名
+- ⬜ Vercel 三个存量站绑子域名（**可立即开始，不依赖小金**）
 - ⬜ 阿里云云解析加 5 条记录
-- ⬜ Vercel 导入博客仓库
+- ⬜ 在 GitHub 新建**私有**仓库，把仓库地址给小金（或提供授权方式）
+- ⬜ Vercel 导入博客仓库 → 为博客绑 `www` + 根域名
 
 **待小金**
-- ⬜ 初始化 git 仓库并推送 GitHub 私有仓库
-- ⬜ 第 7 节 5 处域名替换
+- ⬜ 推送到 GitHub 私有仓库（需客户甲先给仓库地址 / 授权）
+- ⬜ 第 7 节 5 处域名替换（**必须等三个子域名验证通过**）
 - ⬜ 上线验收
+
+**⚠️ 上线前待客户甲拍板的两项内容审查发现**
+
+1. **每篇复盘的「数据与来源」段会渲染可点击的飞书母稿链接**
+   `src/layouts/ReviewArticle.astro` 输出 `<a href="https://ikvq9lfu7s.feishu.cn/docx/...">`（`target="_blank"`）。
+   实测匿名访问返回 **302**（跳登录页）→ **内容不泄露**，但暴露 workspace 域名与文档 ID，
+   且访客点开是死链。
+2. **同段落渲染出内部 SOP 用语**
+   实际渲染原文：`飞书文档 Go4pdYynboVkIEx6hIwcYTBPnid，三段已回填并 fetch 复核通过（revision 521）。`
+   其中「三段已回填」「fetch 复核」为内部流程术语。
+   **注**：`publishing-workflow.md` §6.1 本就要求「飞书母稿来源须逐项署名带 revision」，
+   故 `revision 521` 可能是**刻意保留的可追溯信息**，与「公开判断边界」的定位一致 —— 未擅自改动。
+
+**其他待定优化项**
+- ⬜ `public/images/posters/` 有 18 个文件（**34.2 MB**）从未被任何 MDX 引用
+  （teaser 引流版 / orange-cats / 背景图），可清理以减小仓库与部署体积
