@@ -140,6 +140,13 @@ agent_created: true
 6. **双 log 追加**（真实时间，不补历史缺口）：`docs/operations/completion-log.md`（每交易日一行：终稿确认/交接包接收/网站预览三节点）、`docs/operations/distribution-log.md`（博客主站/雪球/小红书状态 + 备注）。
 7. 海报若当时未目检：MDX/草稿先行；目检定稿后重渲染→重拷 public→补 handoff，才把交接包翻 `ready`。
 
+**「走完 B 侧」的范围（2026-09-22 定义）**：= §5.5 的 1-6 步 **+ §6 状态登记 + §7 网站发布**，即**含把 MDX 升到 `public`、构建生产站并推送部署**。依据：§6/§7 两节标题都标着「（B 侧）」；流程头的「B：6-7 步仅提示」是说 **A 台只提示、不代做**，不代表 B 侧只做到 preview。
+
+- 用户说「走完 B 侧」→ 一路做到 public + 推送，**不要停在 preview 再回问一轮**。
+- 但**发布是公开动作**：若用户只点名了部分内容（例：「这四篇走完 B 侧」），**只发布被点名的**，同批已 ready 但未点名的（例：周稿）保持 `preview`，并在汇报里点明日/周进度不一致。
+- 目标为 `public` 时用 `npm run build`（生产）作闸门，比 `build:preview` 更严格——后者对 preview 状态全放行，证明不了上线正确。
+- 时间字段：`completed_at` / `published_at` 取真实时刻，**`completed_at` 不得早于构建真正完成的时点**（2026-09-22 曾误写成递增序列，其中一个值晚于构建完成时刻，已改正）。
+
 ### 6. 状态登记（B 侧，append-only）
 
 - `docs/operations/completion-log.md`：每交易日新增一行（终稿确认/交接包接收/网站预览三节点只填真实时间）。
