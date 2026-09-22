@@ -166,16 +166,22 @@
 
 ---
 
-## 8. 上线验收清单
+## 8. 上线验收清单（2026-09-22 20:10 实测结果）
 
-- [ ] `fupanxinyuan.com` 域名状态「正常」（实名已通过）
-- [ ] `www.` / 根域名 / `erp.` / `etf.` / `valuation.` 五个地址全部能打开
-- [ ] 手机 4G 流量验证全部通过
-- [ ] 博客首页显示 18 篇复盘（15 每日 + 3 每周）
-- [ ] 博客首页「研究工具」三张卡点进去都是新域名且能打开（**不能还是 vercel.app**）
-- [ ] 关于页、归档页、单篇复盘页正常
-- [ ] `channels.ts` 与 `distribute.py` 两处 blogUrl 已换成正式域名
-- [ ] 三个存量站的 GitHub Actions 自动更新管道仍正常（**按设计不需要改任何配置**）
+- [x] `fupanxinyuan.com` 域名状态「正常」（实名已通过 2026-09-22 12:15:08；NS = `dns21/dns22.hichina.com`）
+- [x] `www.` / 根域名 / `erp.` / `etf.` / `valuation.` 五个地址全部能打开（HTTP 200；根域名 308 → www）
+- [x] 四个域名 TLS 证书均由 Vercel 自动签发，SAN 一一对应，有效期剩余 89 天
+- [x] 博客首页显示 18 篇复盘（15 每日 + 3 每周）；`/daily/` 列表实测 15 条（08-24 → 09-14）
+- [x] 博客「关于」页研究工具三张卡点进去都是新域名且能打开（**已无 vercel.app**）
+- [x] 关于页、归档页、单篇复盘页、归档月页正常（16 条路径抽测全部 200）
+- [x] `channels.ts` 与 `distribute.py` 两处 blogUrl 已换成正式域名（提交 `a10fa22`）
+- [ ] 手机 4G 流量验证（**需【客户甲】本人执行**，这是最接近访客真实体验的一步）
+- [ ] 三个存量站的 GitHub Actions 自动更新管道仍正常（按设计不需要改配置，等下一次自动提交验证）
+
+**上线后实测发现的缺陷（已修，见第 10 节）**
+
+- [x] `og:image` 曾指向 `http://localhost:4321/og.png`
+- [x] 全站缺 `canonical`、`robots.txt`、`sitemap.xml`
 
 ---
 
@@ -190,43 +196,118 @@
 | 博客上线后只有 1 篇复盘 | 内容的 `status` 不是 `public`（生产构建只放行 public） |
 | 博客上点研究工具跳 vercel.app 打不开 | 第 7 节的 `researchTools.ts` 替换还没做 |
 | 雪球草稿里博客链接还是 localhost | `channels.ts` / `distribute.py` 的 blogUrl 还没替换 |
+| 分享到微信/雪球，卡片图裂 | `astro.config.mjs` 缺 `site` 字段 → `Astro.url` 回退 localhost → 见第 10 节 |
+| 搜索引擎不收录 | 缺 `robots.txt` / `sitemap.xml` → 见第 10 节 |
+
+---
+
+## 10. 上线后实测记录与缺陷修复（2026-09-22）
+
+### 10.1 实测发现的缺陷（已修）
+
+**① `og:image` 指向 localhost（严重）**
+
+线上原值：`<meta property="og:image" content="http://localhost:4321/og.png">`
+
+根因：`astro.config.mjs` **没有 `site` 字段**。`BaseLayout.astro` 用
+`new URL(socialImage, Astro.url)` 取绝对地址，而静态构建期 `Astro.url` 在未设
+`site` 时回退为 `http://localhost:4321`。
+
+影响：分享链接到微信 / 雪球 / 小红书时，预览卡片的图抓不到。
+
+修法：`astro.config.mjs` 加 `site: "https://www.fupanxinyuan.com"`。
+
+**② 缺 `canonical` / `robots.txt` / `sitemap.xml`**
+
+`canonical` 是 `www` 与根域名并存时的去重前提；`robots.txt` + `sitemap.xml` 是收录基础。
+三者线上实测均为 404 / 缺失。
+
+修法：
+- `src/layouts/BaseLayout.astro`：输出 `<link rel="canonical">`、`og:url`、`og:site_name`、`og:locale`
+- `public/robots.txt`：`Allow: /` + Sitemap 指向
+- `src/pages/sitemap.xml.ts`：**构建期生成，不引第三方依赖**。口径与站内一致：
+  用 `isVisible()` 过滤（只放行 public），静态路由 + 归档月页（由复盘日期 `slice(0,7)` 去重得出）
+  + 每篇复盘 + 研究笔记，共 26 条 URL
+
+> 为什么不用 `@astrojs/sitemap`：本仓只需覆盖 26 个页面，自建 endpoint 零依赖、
+> 且能复用 `isVisible()` 与 `reviewHref()`，口径不会和站内可见性脱钩。
+
+### 10.2 修复后复验
+
+| 项 | 结果 |
+|---|---|
+| `npm run check` | 0 errors / 0 warnings / 0 hints |
+| `npm run build` | **26 page(s) built**（含 `/sitemap.xml`） |
+| `dist/` 内 `localhost:4321` 残留 | **0 个文件**（修复前首页命中） |
+| 首页 og:image | `https://www.fupanxinyuan.com/og.png` |
+| 单篇 canonical | `https://www.fupanxinyuan.com/daily/2026-09-14/` |
+| `sitemap.xml` | 26 条 `<loc>`，全部绝对地址 |
+
+### 10.3 DNS 与证书实测（修复前基线，证明域名层已通）
+
+```
+fupanxinyuan.com               A 216.198.79.1                    → 308 → https://www.fupanxinyuan.com/
+www.fupanxinyuan.com           CNAME 97bc68645b9cd26f.vercel-dns-017.com.  A 216.198.79.65 / 64.29.17.65
+erp.fupanxinyuan.com           CNAME 897f7c5a2940a2eb.vercel-dns-017.com.  A 216.198.79.65 / 64.29.17.65
+etf.fupanxinyuan.com           CNAME 5cac2931691d1088.vercel-dns-017.com.  A 64.29.17.1  / 216.198.79.1
+valuation.fupanxinyuan.com     CNAME 6ab485e728263455.vercel-dns-017.com.  A 64.29.17.65 / 216.198.79.65
+```
+
+四个项目各拿到 unique 前缀的 CNAME（与第 4 节「以 Vercel 显示为准」一致）；
+根域名 A 记录 216.198.79.1 而非手册里写的 76.76.21.21 —— **Vercel 换过根域名 IP，以实际下发的为准**。
+
+### 10.4 本机 git 推送通道（重要）
+
+本机环境有 `https_proxy=http://127.0.0.1:9681`，git 走代理会报
+`CONNECT tunnel failed, response 502`。**必须直连推送**：
+
+```bash
+git -c http.proxy= -c https.proxy= push origin main
+```
+
+（`git ls-remote` 同样要加这两个 `-c` 才能验证远端状态。）
 
 ---
 
 ## 附：已完成 / 待完成
 
 **已完成（2026-09-22）**
+
 - ✅ 技术前提全部实测验证
 - ✅ 17 篇 preview 复盘升级为 public（public 18 / draft 4），备份于
   `D:\CC\shared\backups\reviews-20260922-before-promote\`
-- ✅ `npm run check` 0 错误、`npm run build` 26 页通过
 - ✅ 域名 `fupanxinyuan.com` **实名认证通过**（12:15:08），NS 已生效（`dns21/dns22.hichina.com`）
-- ✅ git 仓库已建立：首次提交 `7b199ed`，**239 文件 / 83.1 MB**，分支 `main`（**尚未配置远端**）
+- ✅ git 仓库建立并推送：`https://github.com/keycool/investment-portal.git`（私有），分支 `main`
+  - `7b199ed` 首次提交（239 文件 / 83.1 MB）
+  - `bfedd1c` 同步上线手册状态并记录内容审查发现
+  - `a10fa22` 第 7 节 5 处域名替换（channels.ts / distribute.py / researchTools.ts ×3）
+- ✅ Vercel 导入博客仓库并部署：`investment-portal-kappa.vercel.app` → 已绑自定义域名
+- ✅ 阿里云云解析 5 条记录全部生效；根域名 308 → www
+- ✅ 五个地址 + 四个 TLS 证书实测通过；`/daily/` 列表 15 条；「关于」页研究工具已指向新域名
+- ✅ 第 10 节两项缺陷已修（og:image localhost、缺 canonical/robots/sitemap）
 
 **待客户甲**
-- ✅ Vercel 三个存量站已绑子域名并验证通过（2026-09-22）
-- ⬜ 阿里云云解析加 5 条记录
-- ✅ 在 GitHub 新建私有仓库并完成推送：`keycool/investment-portal`
-- ✅ Vercel 已导入博客仓库并完成部署：`investment-portal-kappa.vercel.app`
-- ⬜ 为博客绑定 `www` + 根域名
 
-**待小金**
-- ⬜ 推送到 GitHub 私有仓库（需客户甲先给仓库地址 / 授权）
-- ⬜ 第 7 节 5 处域名替换（**必须等三个子域名验证通过**）
-- ⬜ 上线验收
+- ⬜ **手机 4G/5G 流量**打开 `https://www.fupanxinyuan.com/` 复核（最接近访客真实体验）
+- ⬜ 三项内容审查拍板（见下）
+- ⬜ 三个存量站的 GitHub Actions 管道下次自动提交时，确认仍正常生效
 
-**⚠️ 上线前待客户甲拍板的两项内容审查发现**
+**⚠️ 待客户甲拍板的两项内容审查发现（线上现状已确认存在）**
 
 1. **每篇复盘的「数据与来源」段会渲染可点击的飞书母稿链接**
    `src/layouts/ReviewArticle.astro` 输出 `<a href="https://ikvq9lfu7s.feishu.cn/docx/...">`（`target="_blank"`）。
    实测匿名访问返回 **302**（跳登录页）→ **内容不泄露**，但暴露 workspace 域名与文档 ID，
-   且访客点开是死链。
+   且访客点开是死链。**线上 09-14 页实测确实带有该链接。**
 2. **同段落渲染出内部 SOP 用语**
-   实际渲染原文：`飞书文档 Go4pdYynboVkIEx6hIwcYTBPnid，三段已回填并 fetch 复核通过（revision 521）。`
+   线上 09-14 页实测原文：`…文档 JvZjdShCKo4qKYx6nDXcevVinle，三段已回填并 fetch 复核通过（revision 509；506 → 507 判断 → 508 点评 → …）`。
    其中「三段已回填」「fetch 复核」为内部流程术语。
    **注**：`publishing-workflow.md` §6.1 本就要求「飞书母稿来源须逐项署名带 revision」，
-   故 `revision 521` 可能是**刻意保留的可追溯信息**，与「公开判断边界」的定位一致 —— 未擅自改动。
+   故 revision 可能是**刻意保留的可追溯信息**，与「公开判断边界」的定位一致 —— 未擅自改动。
 
 **其他待定优化项**
+
 - ⬜ `public/images/posters/` 有 18 个文件（**34.2 MB**）从未被任何 MDX 引用
   （teaser 引流版 / orange-cats / 背景图），可清理以减小仓库与部署体积
+- ⬜ `public/og.png` 为 **2.5 MB**，超出社交平台抓取上限的常见经验值（建议压到 200 KB 内、1200×630）
+- ⬜ `researchNotes` 集合为空，构建期会打印
+  `The collection "researchNotes" does not exist or is empty.`（**非错误，构建正常完成**）

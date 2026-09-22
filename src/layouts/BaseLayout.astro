@@ -20,6 +20,7 @@ const {
 const pageTitle = title === "心猿意马的羊｜交易复盘" ? title : `${title}｜心猿意马的羊`;
 const resolvedSocialImage = socialImage === false ? null : new URL(socialImage, Astro.url).toString();
 const currentPath = Astro.url.pathname;
+const canonicalUrl = new URL(currentPath, Astro.site ?? Astro.url).toString();
 const navItems = [
   { href: "/", label: "首页" },
   { href: "/daily/", label: "每日复盘" },
@@ -37,7 +38,11 @@ const isCurrent = (href: string) => href === "/" ? currentPath === "/" : current
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="心猿意马的羊｜交易复盘" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     {resolvedSocialImage && <meta property="og:image" content={resolvedSocialImage} />}
