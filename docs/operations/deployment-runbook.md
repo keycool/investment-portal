@@ -171,7 +171,9 @@
 - [x] `fupanxinyuan.com` 域名状态「正常」（实名已通过 2026-09-22 12:15:08；NS = `dns21/dns22.hichina.com`）
 - [x] `www.` / 根域名 / `erp.` / `etf.` / `valuation.` 五个地址全部能打开（HTTP 200；根域名 308 → www）
 - [x] 四个域名 TLS 证书均由 Vercel 自动签发，SAN 一一对应，有效期剩余 89 天
-- [x] 博客首页显示 18 篇复盘（15 每日 + 3 每周）；`/daily/` 列表实测 15 条（08-24 → 09-14）
+- [x] 博客内容状态：22 篇 public（**19 每日 + 3 每周**）；`/daily/` 列表实测 **19 条**（08-24 → 09-22）
+      > 09-15 / 09-17 / 09-18 / 09-22 四篇由工作台 B 于 20:30 补做上线（提交 `9b52012`），
+      > 其余 15 篇为 2026-09-22 批量升高（提交见第 7 节说明）。W38 周稿仍留 preview 未发布。
 - [x] 博客「关于」页研究工具三张卡点进去都是新域名且能打开（**已无 vercel.app**）
 - [x] 关于页、归档页、单篇复盘页、归档月页正常（16 条路径抽测全部 200）
 - [x] `channels.ts` 与 `distribute.py` 两处 blogUrl 已换成正式域名（提交 `a10fa22`）
@@ -269,40 +271,77 @@ git -c http.proxy= -c https.proxy= push origin main
 
 ---
 
+## 11. 复盘详情页撤下「数据与来源」「校准记录」（2026-09-22）
+
+用户决定：这两块**不再在页面上展示**。
+
+### 11.1 做法：只撤渲染，不删数据
+
+改动只在 `src/layouts/ReviewArticle.astro`（撤掉两个 `<section>`，留注释段）与
+`src/styles/global.css`（样式保留备用，加注释说明）。
+
+**为什么不删 frontmatter 数据：**
+
+| 原因 | 说明 |
+|---|---|
+| 会直接构建失败 | `content.config.ts` 里 `sources` 是 `z.array(sourceSchema).min(1)` 必填 |
+| §6.1 要求保留 | `publishing-workflow.md` §6.1 要求飞书母稿来源**逐项署名带 revision**，属站内可追溯信息 |
+| 可逆 | 把注释段后的 JSX 放回即恢复展示，无需改回 MDX |
+
+数据仍完整留在 `src/content/reviews/{daily,weekly}/*.mdx`。
+
+### 11.2 连带效果
+
+- 此前**待拍板的两项内容审查发现自动消解**：
+  ① 飞书母稿链接外露（`ikvq9lfu7s.feishu.cn`）；② 内部 SOP 用语外露（「三段已回填并 fetch 复核通过（revision …）」）。
+  实测复核：线上详情页 `feishu.cn` 命中 **0**、`数据与来源` / `校准记录` / `SOURCES` / `CALIBRATION` 命中**均为 0**。
+- **新暴露一处文案不一致（待用户拍板，未擅自改）**：
+  `src/pages/about.astro` 的「编辑契约」01 条写「**事实可追溯 · 展示数据日期和来源**」，
+  但「来源」已不再展示（「数据日期」仍显示在详情页头部 `数据截至 …` 与首页卡片）。
+
+### 11.3 详情页现在的板块顺序
+
+`导语 / 关键事实 / 结构解释 / 当前判断 / 边界与观察 / 收盘点评 / 个人感悟`（正文 MDX）
+→ `关于我` → `研究工具` → 免责声明 → 上下篇导航。
+
+> 注：详情页头部保留一排四字 chip「事实 / 判断 / 边界 / 校准」，属编辑契约提示，**未动**。
+
+---
+
 ## 附：已完成 / 待完成
 
 **已完成（2026-09-22）**
 
 - ✅ 技术前提全部实测验证
-- ✅ 17 篇 preview 复盘升级为 public（public 18 / draft 4），备份于
-  `D:\CC\shared\backups\reviews-20260922-before-promote\`
+- ✅ 复盘内容终态：**27 篇 = public 22（19 daily + 3 weekly）+ preview 1（W38）+ draft 4**
+  - 2026-09-22 上午：17 篇 preview 批量升 public，备份于
+    `D:\CC\shared\backups\reviews-20260922-before-promote\`
+  - 2026-09-22 20:30：工作台 B 补做 0915 / 0917 / 0918 / 0922 四篇日报并上线（提交 `9b52012`）
 - ✅ 域名 `fupanxinyuan.com` **实名认证通过**（12:15:08），NS 已生效（`dns21/dns22.hichina.com`）
 - ✅ git 仓库建立并推送：`https://github.com/keycool/investment-portal.git`（私有），分支 `main`
   - `7b199ed` 首次提交（239 文件 / 83.1 MB）
   - `bfedd1c` 同步上线手册状态并记录内容审查发现
   - `a10fa22` 第 7 节 5 处域名替换（channels.ts / distribute.py / researchTools.ts ×3）
+  - `a3d7245` 第 10 节 SEO 缺陷修复（og:image / canonical / robots / sitemap）
+  - `d6bb738` 页脚衬底实装 + 迁移后残留 `vercel.app` 数据源替换
+  - `d84469f` 撤下「数据与来源」「校准记录」两块（第 11 节）
 - ✅ Vercel 导入博客仓库并部署：`investment-portal-kappa.vercel.app` → 已绑自定义域名
 - ✅ 阿里云云解析 5 条记录全部生效；根域名 308 → www
-- ✅ 五个地址 + 四个 TLS 证书实测通过；`/daily/` 列表 15 条；「关于」页研究工具已指向新域名
+- ✅ 五个地址 + 四个 TLS 证书实测通过；`/daily/` 列表 **19 条**；「关于」页研究工具已指向新域名；sitemap **30 条**逐条 200
+- ✅ 复盘详情页撤下「数据与来源」「校准记录」两块（用户 2026-09-22 决定，见第 11 节）
 - ✅ 第 10 节两项缺陷已修（og:image localhost、缺 canonical/robots/sitemap）
 
 **待客户甲**
 
 - ⬜ **手机 4G/5G 流量**打开 `https://www.fupanxinyuan.com/` 复核（最接近访客真实体验）
-- ⬜ 三项内容审查拍板（见下）
+- ⬜ 「关于」页编辑契约 01 条文案对齐（原文「展示数据日期和来源」与现状不符，见第 11.2 节）
 - ⬜ 三个存量站的 GitHub Actions 管道下次自动提交时，确认仍正常生效
 
-**⚠️ 待客户甲拍板的两项内容审查发现（线上现状已确认存在）**
+**已消解（2026-09-22 第 11 节撤块后自动关闭）**
 
-1. **每篇复盘的「数据与来源」段会渲染可点击的飞书母稿链接**
-   `src/layouts/ReviewArticle.astro` 输出 `<a href="https://ikvq9lfu7s.feishu.cn/docx/...">`（`target="_blank"`）。
-   实测匿名访问返回 **302**（跳登录页）→ **内容不泄露**，但暴露 workspace 域名与文档 ID，
-   且访客点开是死链。**线上 09-14 页实测确实带有该链接。**
-2. **同段落渲染出内部 SOP 用语**
-   线上 09-14 页实测原文：`…文档 JvZjdShCKo4qKYx6nDXcevVinle，三段已回填并 fetch 复核通过（revision 509；506 → 507 判断 → 508 点评 → …）`。
-   其中「三段已回填」「fetch 复核」为内部流程术语。
-   **注**：`publishing-workflow.md` §6.1 本就要求「飞书母稿来源须逐项署名带 revision」，
-   故 revision 可能是**刻意保留的可追溯信息**，与「公开判断边界」的定位一致 —— 未擅自改动。
+- ~~每篇复盘的「数据与来源」段渲染可点击的飞书母稿链接（`ikvq9lfu7s.feishu.cn`）~~
+- ~~同段落渲染内部 SOP 用语（「三段已回填并 fetch 复核通过（revision …）」）~~
+  两项均随整块撤下消失，线上实测命中 0。
 
 **其他待定优化项**
 
