@@ -1,0 +1,22 @@
+---
+import { getCollection } from "astro:content";
+import PageIntro from "../../components/PageIntro.astro";
+import ResearchCard from "../../components/ResearchCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { byNewest, isPreviewMode, isVisible } from "../../lib/content";
+
+const notes = (await getCollection("researchNotes")).filter((entry) => isVisible(entry.data.status)).sort(byNewest);
+---
+
+<BaseLayout title="研究笔记" description="带来源的外部观点摘要与个人理解、验证记录。" noindex={isPreviewMode}>
+  <PageIntro eyebrow="RESEARCH NOTES" title="研究笔记" description="辅助栏目：记录值得继续验证的外部观点，并明确区分原始来源与我自己的理解。" />
+  <section class="listing shell">
+    {notes.length > 0 ? notes.map((note) => <ResearchCard note={note} />) : (
+      <div class="empty-state research-empty">
+        <span class="eyebrow">NOT PUBLISHED YET</span>
+        <strong>研究笔记仍在整理</strong>
+        <p>历史外部观点没有直接迁移。只有完成来源署名、公开编辑和个人验证记录后，内容才会出现在这里。</p>
+      </div>
+    )}
+  </section>
+</BaseLayout>

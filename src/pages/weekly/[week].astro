@@ -1,0 +1,33 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import ReviewArticle from "../../layouts/ReviewArticle.astro";
+import { isVisible } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const reviews = (await getCollection("reviews"))
+    .filter((entry) => entry.data.type === "weekly" && isVisible(entry.data.status))
+    .sort((a, b) => a.data.date.localeCompare(b.data.date));
+
+  return reviews.map((review, index) => ({
+    params: { week: review.data.week_id ?? review.data.date },
+    props: {
+      review,
+      previous: reviews[index - 1],
+      next: reviews[index + 1],
+    },
+  }));
+}
+
+interface Props {
+  review: CollectionEntry<"reviews">;
+  previous?: CollectionEntry<"reviews">;
+  next?: CollectionEntry<"reviews">;
+}
+
+const { review, previous, next } = Astro.props;
+const { Content } = await render(review);
+---
+
+<ReviewArticle review={review} previous={previous} next={next}>
+  <Content />
+</ReviewArticle>

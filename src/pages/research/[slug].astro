@@ -1,0 +1,19 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import ResearchArticle from "../../layouts/ResearchArticle.astro";
+import { isVisible } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const notes = (await getCollection("researchNotes")).filter((entry) => isVisible(entry.data.status));
+  return notes.map((note) => ({
+    params: { slug: note.data.slug.replace(/^research\//, "") },
+    props: { note },
+  }));
+}
+
+interface Props { note: CollectionEntry<"researchNotes"> }
+const { note } = Astro.props;
+const { Content } = await render(note);
+---
+
+<ResearchArticle note={note}><Content /></ResearchArticle>

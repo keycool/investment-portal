@@ -1,0 +1,18 @@
+---
+import { getCollection } from "astro:content";
+import PageIntro from "../../components/PageIntro.astro";
+import ReviewCard from "../../components/ReviewCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { byNewest, isPreviewMode, isVisible } from "../../lib/content";
+
+const reviews = (await getCollection("reviews"))
+  .filter((entry) => entry.data.type === "weekly" && isVisible(entry.data.status))
+  .sort(byNewest);
+---
+
+<BaseLayout title="每周复盘" description="独立的高周期市场判断、估值证据和下一周观察条件。" noindex={isPreviewMode}>
+  <PageIntro eyebrow="WEEKLY REVIEWS" title="每周复盘" description="不是五篇日报的拼接，而是独立观察趋势、风险偏好、估值证据与下一周验证条件。" />
+  <section class="listing shell">
+    {reviews.length > 0 ? reviews.map((review) => <ReviewCard review={review} />) : <div class="empty-state"><strong>尚无公开周复盘</strong><p>内容会在完成确认、来源和预览检查后出现。</p></div>}
+  </section>
+</BaseLayout>

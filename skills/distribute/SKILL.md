@@ -1,0 +1,45 @@
+---
+name: distribute
+description: 将已确认的博客复盘（MDX 母版）派生为分发草稿。分发结构（2026-08-31）：个人博客=中心/最终承接；雪球=主打引流战场（海报+短评，引回博客）；小红书引流板=paused 暂停（默认不产出，--with-xhs 恢复）。题眼/摘要/边界逐字保留，套固定模板 + 发布核对清单；用于每日复盘/周复盘的分发；不用于下单、投顾、策略修改或从未确认材料生成内容。
+---
+
+# 内容分发（distribute）
+
+从**博客 MDX 母版**单向降级派生分发草稿：
+- **雪球** = 主图海报(1080×2000) + 题眼/摘要/边界短评（完整长文在博客）—— **主打引流战场（active）**
+- **小红书** = 引流版海报(1080×1440) + 一句话钩子 —— **暂停（paused，2026-08-31 起，默认不产出；恢复时加 `--with-xhs`）**
+
+制作中心在博客，分发物从母版派生，不重复造。
+
+## 必读资源
+
+1. 分发模板：`docs/distribution/xueqiu-template.md`（`xhs-template.md` 已暂停，保留供将来启用）。
+2. 渠道配置：`src/data/channels.ts`（渠道定位、status、CTA、标签、博客链接、免责声明唯一文本）。
+3. 生成规则总纲：`docs/operations/poster-production-rules.md`（确认门槛、题眼措辞、QA、CTA 合规）。
+
+## 标准流程
+
+1. **确认母版就绪**：博客 MDX 已完成（7 段正文 + `**确认原文**` 标记 + frontmatter），且三段已确认。
+2. **运行派生脚本**：
+
+   ```text
+   python skills/distribute/scripts/distribute.py <mdx路径> --out content-inbox/<日期>-daily/
+   ```
+
+   默认只生成 `xueqiu-publish-draft-YYYYMMDD.md`（小红书暂停）。将来恢复小红书时加 `--with-xhs`。
+   周稿（`type: weekly`）由脚本按 frontmatter 自动用周稿口径：标题「周度复盘」、海报文件名取 `poster.src`、来源 `content-inbox/<id>/handoff.md`、标签 `#周度复盘`——2026-09-08 起无需手工修正；早期旧版本产物需人工核对上述字段。
+3. **人工补缺**：脚本只自动填充可派生的字段——关键事实表「说明」列需人工补。
+4. **核对清单过目**：草稿文末带发布核对清单，逐项过一遍才可发。
+5. **状态登记**：发布后更新 `docs/operations/distribution-log.md`（append-only）。
+
+## 不可变规则
+
+- 判断 / 点评 / 感悟必须逐字取自博客 `**确认原文**`，不新增、不改义。
+- 雪球配 1080×2000 复盘海报；正文禁持仓/仓位/账户金额/收益截图/具体买卖动作。
+- 免责声明只用 `site-copy.md` §7 唯一文本；CTA 只引导到个人博客（`channels.ts` 的 `blogUrl`）。
+- 小红书渠道暂停期间不生成、不发布小红书草稿（恢复条件见 `channels.ts` 中 xhs.status）。
+- 不运行或修改 ERP、PE、相对比价策略及交易执行。
+
+## 失败汇报
+
+真正卡住时报告：输入 MDX 路径、当前阶段、完整错误、已生成/缺失字段、未执行的越界动作。

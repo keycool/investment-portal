@@ -1,0 +1,38 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import { formatDate, isPreviewMode } from "../lib/content";
+
+interface Props {
+  note: CollectionEntry<"researchNotes">;
+}
+
+const { note } = Astro.props;
+const { data } = note;
+const socialImage = data.cover ? data.cover.image.src : false;
+---
+
+<BaseLayout title={data.title} description={data.summary} noindex={isPreviewMode || data.status !== "public"} socialImage={socialImage}>
+  <article class="article-shell">
+    <header class="article-header">
+      <a class="back-link" href="/research/">← 返回研究笔记</a>
+      <div class="article-meta">
+        <span>研究笔记</span>
+        <time datetime={data.date}>{formatDate(data.date)}</time>
+        <span>数据截至 {formatDate(data.data_as_of)}</span>
+        {data.status !== "public" && <span class="status-badge">{data.status}</span>}
+      </div>
+      <h1>{data.title}</h1>
+      <p class="article-summary">{data.summary}</p>
+      <div class="source-attribution">
+        <span>外部来源</span>
+        <strong>{data.source_author} · {data.source_title}</strong>
+        <a href={data.source_url} target="_blank" rel="noreferrer">查看原始来源 ↗</a>
+      </div>
+    </header>
+    <div class="prose research-prose"><slot /></div>
+    <aside class="disclaimer">
+      本页区分外部观点与作者自己的理解，仅用于投资交易学习和研究记录，不构成投资建议或买卖指令。
+    </aside>
+  </article>
+</BaseLayout>

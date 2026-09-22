@@ -1,0 +1,56 @@
+---
+import { getCollection } from "astro:content";
+import PageIntro from "../../components/PageIntro.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { byNewest, formatDate, isPreviewMode, isVisible, judgmentLabel, reviewHref, reviewTypeLabel } from "../../lib/content";
+
+const reviews = (await getCollection("reviews")).filter((entry) => isVisible(entry.data.status)).sort(byNewest);
+const featured = reviews.filter((entry) => entry.data.featured).slice(0, 4);
+const months = reviews.reduce<Record<string, typeof reviews>>((groups, review) => {
+  const month = review.data.date.slice(0, 7);
+  groups[month] ??= [];
+  groups[month].push(review);
+  return groups;
+}, {});
+---
+
+<BaseLayout title="历史归档" description="按日期回看原判断、验证边界和后续校准。" noindex={isPreviewMode}>
+  <PageIntro eyebrow="ARCHIVE" title="历史归档" description="归档不是文章仓库，而是可以回看当时判断、观察条件和后续校准的长期记录。" />
+
+  <section class="archive-section shell">
+    <div class="archive-heading"><span class="eyebrow">FEATURED</span><h2>精选复盘</h2></div>
+    {featured.length > 0 ? (
+      <div class="archive-featured">
+        {featured.map((review) => (
+          <a href={reviewHref(review)}>
+            <span>{reviewTypeLabel(review.data.type)} · {formatDate(review.data.date)}</span>
+            <strong>{review.data.title}</strong>
+            <small>{judgmentLabel(review.data.judgment_status)}</small>
+          </a>
+        ))}
+      </div>
+    ) : <div class="empty-state"><strong>尚无公开精选</strong><p>精选依据判断链和校准价值，不依据“猜对”。</p></div>}
+  </section>
+
+  <section class="archive-section shell">
+    <div class="archive-heading"><span class="eyebrow">BY DATE</span><h2>按月浏览</h2></div>
+    {Object.keys(months).length > 0 ? Object.entries(months).map(([month, entries]) => (
+      <div class="archive-month" id={month}>
+        <div class="month-label">
+          <h3>{month}</h3>
+          <a href={`/archive/${month.replace("-", "/")}/`}>单独查看</a>
+        </div>
+        <div class="archive-rows">
+          {entries.map((review) => (
+            <a href={reviewHref(review)}>
+              <time datetime={review.data.date}>{review.data.date.slice(5)}</time>
+              <span>{reviewTypeLabel(review.data.type)}</span>
+              <strong>{review.data.title}</strong>
+              <small>{judgmentLabel(review.data.judgment_status)}</small>
+            </a>
+          ))}
+        </div>
+      </div>
+    )) : <div class="empty-state"><strong>尚无公开归档</strong><p>草稿不会进入正式归档。</p></div>}
+  </section>
+</BaseLayout>

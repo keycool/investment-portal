@@ -1,0 +1,14 @@
+{
+  "pack_id": "xiaohongshu-starry-text",
+  "version": "1.0.0",
+  "selection_rule": "Add new backgrounds as versioned sibling files; never overwrite an approved variant by default.",
+  "variants": [
+    {
+      "id": "xiaohongshu-starry-text-v1",
+      "file": "background-v1.png",
+      "metadata_file": "canvas.json",
+      "description": "Quiet indigo-lavender starry background with sparse edge details and a large text-safe center.",
+      "name_cn": "星云随笔"
+    }
+  ]
+}

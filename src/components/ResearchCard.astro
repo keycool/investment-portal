@@ -1,0 +1,49 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import { formatDate, noteHref } from "../lib/content";
+
+interface Props {
+  note: CollectionEntry<"researchNotes">;
+}
+
+const { note } = Astro.props;
+const { data } = note;
+---
+
+<article class="review-card research-card">
+  <a href={noteHref(note)} aria-label={`阅读研究笔记：${data.title}`}>
+    <div class="review-cover">
+      {
+        data.cover ? (
+          <Image
+            src={data.cover.image}
+            alt={data.cover.alt}
+            width={600}
+            height={400}
+            loading="lazy"
+            style={`object-position:${data.cover.position}`}
+          />
+        ) : (
+          <div class="cover-fallback cover-research" role="img" aria-label={`${data.title}的排版封面`}>
+            <span class="cover-type">研究笔记</span>
+            <strong>{data.title}</strong>
+            <span class="cover-date">{data.date}</span>
+            <span class="cover-signature">心猿意马的羊</span>
+          </div>
+        )
+      }
+    </div>
+    <div class="review-copy">
+      <div class="review-meta">
+        <span>研究笔记</span>
+        <time datetime={data.date}>{formatDate(data.date)}</time>
+        <span>来源：{data.source_author}</span>
+        {data.status !== "public" && <span class="status-badge">{data.status}</span>}
+      </div>
+      <h3>{data.title}</h3>
+      <p>{data.summary}</p>
+      <span class="read-more">阅读全文 <span aria-hidden="true">↗</span></span>
+    </div>
+  </a>
+</article>

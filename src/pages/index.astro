@@ -1,0 +1,151 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { byNewest, isPreviewMode, isVisible, reviewHref } from "../lib/content";
+import { researchTools } from "../data/researchTools";
+
+const reviews = (await getCollection("reviews"))
+  .filter((entry) => isVisible(entry.data.status))
+  .sort(byNewest);
+
+const latestWeekly = reviews.find((review) => review.data.type === "weekly");
+const latestDailies = reviews.filter((review) => review.data.type === "daily");
+const latestDaily = latestDailies[0];
+const stripDailies = latestDaily ? latestDailies.filter((r) => r.id !== latestDaily.id).slice(0, 3) : latestDailies.slice(0, 3);
+
+const weeklyLabel = latestWeekly?.data.week_id
+  ? `${latestWeekly.data.week_id.split("-W")[0]} 第 ${parseInt(latestWeekly.data.week_id.split("-W")[1], 10)} 周 · 截至 ${latestWeekly.data.date.slice(5)}`
+  : null;
+
+const dayLabel = (date: string) => date.slice(5).replace("-", "/");
+---
+
+<BaseLayout noindex={isPreviewMode} theme="deep">
+  <section class="hero shell">
+    <div class="hero-kicker">MARKET REVIEW · OBSERVE / JUDGE / CALIBRATE</div>
+    <h1>把每天的判断，<br /><em>留给时间检验。</em></h1>
+    <p class="hero-lead">
+      复盘是交易者的日课，它不只是为了交易做准备。它就是一份工作、一份记录。
+    </p>
+    <div class="hero-rule"><span>公开判断</span><span>标注边界</span><span>校准留痕</span><span>不覆盖原文</span></div>
+  </section>
+
+  <div class="shell">
+    {latestDaily && (
+      <>
+        <div class="group-label">
+          <h2>最新日报</h2>
+          <span>{latestDaily.data.date}</span>
+          <a class="more" href="/daily/">全部每日复盘 →</a>
+        </div>
+        <a class="headline-card" href={reviewHref(latestDaily)}>
+          <div class="headline-cover">
+            {latestDaily.data.poster?.src ? (
+              <img src={latestDaily.data.poster.src} alt={latestDaily.data.poster.alt} loading="lazy" />
+            ) : (
+              <div class="cover-fallback" role="img" aria-label={`${latestDaily.data.title}的排版封面`}>
+                <span class="cover-type">每日复盘</span>
+                <strong>{latestDaily.data.title.split("/")[0].trim()}</strong>
+                <span class="cover-date">{latestDaily.data.date}</span>
+                <span class="cover-signature">心猿意马的羊</span>
+              </div>
+            )}
+          </div>
+          <div class="headline-body">
+            <div class="headline-meta">
+              <span>每日复盘</span>
+              <span>{latestDaily.data.date.slice(5).replace("-", "/")}</span>
+              <span class="tag">最新</span>
+            </div>
+            <h3>{latestDaily.data.title}</h3>
+            <p>{latestDaily.data.summary}</p>
+            <span class="read-more">阅读全文 →</span>
+          </div>
+        </a>
+      </>
+    )}
+
+    {latestWeekly && (
+      <>
+        <div class="group-label">
+          <h2>最新周报</h2>
+          {weeklyLabel && <span>{weeklyLabel}</span>}
+          <a class="more" href="/weekly/">全部周报 →</a>
+        </div>
+        <a class="headline-card" href={reviewHref(latestWeekly)}>
+          <div class="headline-cover">
+            {latestWeekly.data.poster?.src ? (
+              <img src={latestWeekly.data.poster.src} alt={latestWeekly.data.poster.alt} loading="lazy" />
+            ) : (
+              <div class="cover-fallback cover-weekly" role="img" aria-label={`${latestWeekly.data.title}的排版封面`}>
+                <span class="cover-type">每周复盘</span>
+                <strong>{latestWeekly.data.title.split("/")[0].trim()}</strong>
+                <span class="cover-date">{latestWeekly.data.date}</span>
+                <span class="cover-signature">心猿意马的羊</span>
+              </div>
+            )}
+          </div>
+          <div class="headline-body">
+            <div class="headline-meta">
+              <span>每周复盘</span>
+              {latestWeekly.data.week_id && <span>{latestWeekly.data.week_id}</span>}
+            </div>
+            <h3>{latestWeekly.data.title}</h3>
+            <p>{latestWeekly.data.summary}</p>
+            {latestWeekly.data.headline_stats && latestWeekly.data.headline_stats.length > 0 && (
+              <div class="stat-row">
+                {latestWeekly.data.headline_stats.map((stat) => (
+                  <div class:list={["stat", { up: stat.accent }]}>
+                    <b>{stat.value}</b>
+                    <i>{stat.label}</i>
+                  </div>
+                ))}
+              </div>
+            )}
+            <span class="read-more">阅读周报全文 →</span>
+          </div>
+        </a>
+      </>
+    )}
+
+    <div class="group-label">
+      <h2>策略入口</h2>
+      <span>RESEARCH TOOLS</span>
+    </div>
+    <p class="tools-note">复盘之外的三项独立研究入口。它们提供观察证据，不自动生成本站判断，也不构成买卖建议。</p>
+    <div class="tool-grid">
+      {researchTools.map((tool, index) => (
+        <a href={tool.url} target="_blank" rel="noopener noreferrer">
+          <span class="tool-index">0{index + 1}</span>
+          <strong>{tool.name}</strong>
+          <span class="tool-cn">{tool.subtitle}</span>
+          <p>{tool.description}</p>
+          <span class="tool-action">进入工具 →</span>
+        </a>
+      ))}
+    </div>
+
+    {stripDailies.length > 0 && (
+      <>
+        <div class="group-label">
+          <h2>每日复盘</h2>
+          <span>RECENT DAILY</span>
+          <a class="more" href="/daily/">全部每日复盘 →</a>
+        </div>
+        <div class="daily-strip">
+          {stripDailies.map((review) => (
+            <a class="row" href={reviewHref(review)}>
+              <time datetime={review.data.date}>{dayLabel(review.data.date)}</time>
+              <h3>{review.data.title}</h3>
+              <span class="go">阅读 →</span>
+            </a>
+          ))}
+        </div>
+      </>
+    )}
+
+    <section class="site-disclaimer" id="disclaimer" aria-label="免责声明">
+      <p>本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议、收益承诺、代客理财或具体买卖指令。市场有风险，任何决策都应基于独立判断并由决策者自行承担结果。</p>
+    </section>
+  </div>
+</BaseLayout>

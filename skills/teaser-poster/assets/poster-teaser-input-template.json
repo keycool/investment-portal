@@ -1,0 +1,21 @@
+{
+  "date": "YYYY-MM-DD",
+  "display_date": "YYYY.MM.DD",
+  "issue": "MMDD",
+  "author": "心猿意马的羊",
+  "pill": "A股复盘",
+  "eyebrow": "DAILY · 盘后观察",
+  "title": ["第一行：事实或观点", "第二行：强调句（暗金）"],
+  "lead": "一句导语：核心事实 + 主要矛盾 + 边界，两行半以内。",
+  "signals": [
+    {"tag": "动能", "val": "+0.00%", "desc": "对象 · 说明", "direction": "red"},
+    {"tag": "量能", "val": "0.00万亿", "desc": "说明", "direction": "neutral"},
+    {"tag": "广度", "val": "+0.00%", "desc": "说明", "direction": "red"}
+  ],
+  "verdict_b": "次日判断：一句话",
+  "verdict_span": "补充半句",
+  "quote": "一句金句（个人感悟）。",
+  "cta": "关注『心猿意马的羊』 · 搜索站内",
+  "source_text": "数据来源：公开市场数据（as_of YYYY-MM-DD）。",
+  "disclaimer": "仅作市场观察，不构成投资建议。"
+}

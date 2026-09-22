@@ -1,0 +1,23 @@
+# 一律使用 LF 换行。
+#
+# 原因：本机 git system config 为 core.autocrlf=true。
+# 若不在此锁定，git 会在 checkout 时把工作区的 LF 文件转成 CRLF，
+# 既污染整仓库 diff，也与项目既有文件格式（Astro / MDX 源码）不一致。
+# 线上构建在 Linux 上跑，LF 才是正确形态。
+* text=auto eol=lf
+
+# Windows 批处理必须保持 CRLF。
+# 启动博客.bat 同时是 GBK 编码，LF 换行在 cmd 下解析批处理可能出错，不可转换。
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# 二进制资源不做任何换行转换
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.gif  binary
+*.ico  binary
+*.woff  binary
+*.woff2 binary
+*.ttf  binary

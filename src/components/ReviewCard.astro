@@ -1,0 +1,49 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import { formatDate, reviewHref, reviewTypeLabel } from "../lib/content";
+
+interface Props {
+  review: CollectionEntry<"reviews">;
+  compact?: boolean;
+}
+
+const { review, compact = false } = Astro.props;
+const { data } = review;
+---
+
+<article class:list={["review-card", { compact }]}>
+  <a href={reviewHref(review)} aria-label={`阅读${reviewTypeLabel(data.type)}：${data.title}`}>
+    <div class="review-cover">
+      {
+        data.cover ? (
+          <Image
+            src={data.cover.image}
+            alt={data.cover.alt}
+            width={600}
+            height={400}
+            loading="lazy"
+            style={`object-position:${data.cover.position}`}
+          />
+        ) : (
+          <div class:list={["cover-fallback", `cover-${data.type}`]} role="img" aria-label={`${data.title}的排版封面`}>
+            <span class="cover-type">{reviewTypeLabel(data.type)}</span>
+            <strong>{data.title.split("/")[0].trim()}</strong>
+            <span class="cover-date">{data.date}</span>
+            <span class="cover-signature">心猿意马的羊</span>
+          </div>
+        )
+      }
+    </div>
+    <div class="review-copy">
+      <div class="review-meta">
+        <span>{reviewTypeLabel(data.type)}</span>
+        <time datetime={data.date}>{formatDate(data.date)}</time>
+        {data.status !== "public" && <span class="status-badge">{data.status}</span>}
+      </div>
+      <h3>{data.title}</h3>
+      <p>{data.summary}</p>
+      <span class="read-more">阅读全文 <span aria-hidden="true">↗</span></span>
+    </div>
+  </a>
+</article>

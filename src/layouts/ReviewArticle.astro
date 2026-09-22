@@ -1,0 +1,142 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import { formatDate, isPreviewMode, judgmentLabel, reviewHref, reviewTypeLabel } from "../lib/content";
+import { researchTools } from "../data/researchTools";
+
+interface Props {
+  review: CollectionEntry<"reviews">;
+  previous?: CollectionEntry<"reviews">;
+  next?: CollectionEntry<"reviews">;
+}
+
+const { review, previous, next } = Astro.props;
+const { data } = review;
+const socialImage = data.cover ? data.cover.image.src : false;
+---
+
+<BaseLayout title={data.title} description={data.summary} noindex={isPreviewMode || data.status !== "public"} socialImage={socialImage}>
+  <article class="article-shell">
+    <header class="article-header">
+      <a class="back-link" href={`/${data.type}/`}>← 返回{reviewTypeLabel(data.type)}</a>
+      <div class="article-meta">
+        <span>{reviewTypeLabel(data.type)}</span>
+        <time datetime={data.date}>{formatDate(data.date)}</time>
+        <span>数据截至 {formatDate(data.data_as_of)}</span>
+        <span>{judgmentLabel(data.judgment_status)}</span>
+        {data.status !== "public" && <span class="status-badge">{data.status}</span>}
+      </div>
+      <h1>{data.title}</h1>
+      <p class="article-summary">{data.summary}</p>
+      {data.poster?.src && (
+        <figure class="article-poster">
+          <img src={data.poster.src} alt={data.poster.alt} loading="lazy" />
+        </figure>
+      )}
+      <div class="article-contract">
+        <span>事实</span><span>判断</span><span>边界</span><span>校准</span>
+      </div>
+      {
+        data.cover && (
+          <figure class="article-cover">
+            <Image
+              src={data.cover.image}
+              alt={data.cover.alt}
+              width={1200}
+              height={800}
+              style={`object-position:${data.cover.position}`}
+            />
+            {(data.cover.credit || data.cover.source) && (
+              <figcaption>
+                {data.cover.credit && <span>{data.cover.credit}</span>}
+                {data.cover.source && <a href={data.cover.source} target="_blank" rel="noreferrer">查看来源</a>}
+              </figcaption>
+            )}
+          </figure>
+        )
+      }
+    </header>
+
+    <div class="prose">
+      <slot />
+    </div>
+
+    <section class="article-support sources" aria-labelledby="sources-heading">
+      <div class="support-heading">
+        <span class="eyebrow">SOURCES</span>
+        <h2 id="sources-heading">数据与来源</h2>
+      </div>
+      <ol>
+        {data.sources.map((source) => (
+          <li>
+            <div>
+              {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.label}</a> : <strong>{source.label}</strong>}
+              <time datetime={source.data_as_of}>数据截至 {formatDate(source.data_as_of)}</time>
+            </div>
+            <p>{source.note}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="article-support calibration" aria-labelledby="calibration-heading">
+      <div class="support-heading">
+        <span class="eyebrow">CALIBRATION</span>
+        <h2 id="calibration-heading">校准记录</h2>
+      </div>
+      {
+        data.calibrations.length > 0 ? (
+          <ol>
+            {data.calibrations.map((item) => (
+              <li>
+                <time datetime={item.date}>{formatDate(item.date)}</time>
+                <strong>{item.result}</strong>
+                <p>{item.note}</p>
+                {item.rule_adjustment && <p>规则调整：{item.rule_adjustment}</p>}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="calibration-empty">尚未追加。后续结果只能以带日期的记录补充，不能覆盖原判断。</p>
+        )
+      }
+    </section>
+
+    <section class="article-support about" aria-labelledby="about-heading">
+      <div class="support-heading">
+        <span class="eyebrow">ABOUT</span>
+        <h2 id="about-heading">关于我</h2>
+      </div>
+      <p class="about-text">「心猿意马的羊｜交易复盘」——持续记录市场、公开判断边界并回看错误的交易学习者。记录市场，校准判断，与交易爱好者平视交流。更完整的归档见 <a href="/about/">关于页</a>。</p>
+    </section>
+
+    <section class="article-support tools" aria-labelledby="tools-heading">
+      <div class="support-heading">
+        <span class="eyebrow">RESEARCH TOOLS</span>
+        <h2 id="tools-heading">研究工具</h2>
+      </div>
+      <p class="tools-note">复盘之外的三项独立研究入口。它们提供观察证据，不自动生成本站判断，也不构成买卖建议。</p>
+      <ol class="tools-list">
+        {researchTools.map((tool, i) => (
+          <li>
+            <span class="tool-index">{String(i + 1).padStart(2, "0")}</span>
+            <div>
+              <a href={tool.url} target="_blank" rel="noreferrer">{tool.name} ↗</a>
+              <p>{tool.description}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <aside class="disclaimer" id="disclaimer">
+      本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议、收益承诺、代客理财或具体买卖指令。市场有风险，任何决策都应基于独立判断并由决策者自行承担结果。详见 <a href="/#disclaimer">免责声明</a>。
+    </aside>
+
+    <nav class="article-nav" aria-label="文章前后篇">
+      {previous ? <a href={reviewHref(previous)}><span>上一篇</span><strong>{previous.data.title}</strong></a> : <span />}
+      {next ? <a class="next" href={reviewHref(next)}><span>下一篇</span><strong>{next.data.title}</strong></a> : <span />}
+    </nav>
+  </article>
+</BaseLayout>

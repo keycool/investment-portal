@@ -1,0 +1,46 @@
+{
+  "id": "xiaohongshu-starry-text",
+  "version": "1.0.0",
+  "role": "text-led-background-canvas",
+  "aspect_ratio": "3:4",
+  "native_size": [
+    1086,
+    1448
+  ],
+  "file": "background-v1.png",
+  "sha256": "A7CFE4C4DFE38221E3D3278B350C3BEE5DD8508906555A02A9DF8B195DC7BCE1",
+  "recommended_text_area": {
+    "x": 130,
+    "y": 260,
+    "width": 826,
+    "height": 820,
+    "note": "Central low-contrast area for Xiaohongshu title, body copy, lists, and short data blocks."
+  },
+  "palette": [
+    "#202C50",
+    "#52658B",
+    "#6F6A92",
+    "#B7A8C5",
+    "#F2DDB4"
+  ],
+  "visual_elements": [
+    "sparse stars",
+    "delicate constellation lines",
+    "soft indigo-lavender nebula haze",
+    "subtle crescent glow",
+    "paper grain",
+    "low-contrast central gradient"
+  ],
+  "content_policy": {
+    "text": "Place exact Chinese text, numbers, and data in HTML/SVG or another editable layer.",
+    "logo_watermark": "Do not add logos, watermarks, QR codes, or pseudo-writing to the background.",
+    "contrast": "Keep decorative stars away from dense text and preserve readable contrast."
+  },
+  "recommended_engine": "hybrid",
+  "source": "Generated from the user-approved Xiaohongshu text-led dreamy-starry background brief.",
+  "mood": [
+    "dreamy",
+    "narrative",
+    "reflective"
+  ]
+}

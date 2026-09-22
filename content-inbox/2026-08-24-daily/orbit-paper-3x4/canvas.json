@@ -1,0 +1,44 @@
+{
+  "id": "orbit-paper-3x4",
+  "version": "1.0.0",
+  "role": "background-canvas",
+  "aspect_ratio": "3:4",
+  "native_size": [
+    1086,
+    1448
+  ],
+  "file": "background.png",
+  "sha256": "912AA22A2F86EBDDAA87052D9CD624A534CB14C323E707A3786C702BCB4A2714",
+  "recommended_text_area": {
+    "x": 145,
+    "y": 245,
+    "width": 796,
+    "height": 640,
+    "note": "Recommended quiet central region; inspect the final composition before publishing."
+  },
+  "palette": [
+    "#F5EEDF",
+    "#16465B",
+    "#4F8582",
+    "#D5A746"
+  ],
+  "visual_language": [
+    "paper grain",
+    "thin orbital lines",
+    "connected nodes",
+    "deep teal framing",
+    "muted gold accents",
+    "large central negative space"
+  ],
+  "content_policy": {
+    "text": "Place exact text and data in HTML/SVG or another editable layer.",
+    "logo_watermark": "Do not add or copy logos, watermarks, or proprietary wording into the background.",
+    "distortion": "Use proportional scaling; avoid non-uniform stretching."
+  },
+  "recommended_engine": "hybrid",
+  "mood": [
+    "professional",
+    "data-led",
+    "clean"
+  ]
+}

@@ -1,0 +1,48 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { byNewest, isPreviewMode, isVisible, judgmentLabel, reviewHref, reviewTypeLabel } from "../../../lib/content";
+
+export async function getStaticPaths() {
+  const reviews = (await getCollection("reviews")).filter((entry) => isVisible(entry.data.status)).sort(byNewest);
+  const grouped = reviews.reduce<Record<string, Array<CollectionEntry<"reviews">>>>((groups, review) => {
+    const key = review.data.date.slice(0, 7);
+    groups[key] ??= [];
+    groups[key].push(review);
+    return groups;
+  }, {});
+
+  return Object.entries(grouped).map(([key, entries]) => {
+    const [year, month] = key.split("-");
+    return { params: { year, month }, props: { entries, key } };
+  });
+}
+
+interface Props {
+  entries: Array<CollectionEntry<"reviews">>;
+  key: string;
+}
+
+const { entries, key } = Astro.props;
+---
+
+<BaseLayout title={`${key} 归档`} description={`${key} 的每日与每周交易复盘。`} noindex={isPreviewMode}>
+  <section class="page-intro shell month-intro">
+    <a class="back-link" href="/archive/">← 返回完整归档</a>
+    <span class="eyebrow">MONTHLY ARCHIVE</span>
+    <h1>{key}</h1>
+    <p>本月共 {entries.length} 篇复盘。原判断按发布日期保留，后续变化另行追加校准。</p>
+  </section>
+  <section class="archive-section shell">
+    <div class="archive-rows">
+      {entries.map((review) => (
+        <a href={reviewHref(review)}>
+          <time datetime={review.data.date}>{review.data.date}</time>
+          <span>{reviewTypeLabel(review.data.type)}</span>
+          <strong>{review.data.title}</strong>
+          <small>{judgmentLabel(review.data.judgment_status)}</small>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

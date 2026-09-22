@@ -1,0 +1,49 @@
+{
+  "type": "daily",
+  "date": "YYYY-MM-DD",
+  "display_date": "YYYY年M月D日",
+  "issue": "MMDD",
+  "author": "心猿意马的羊",
+  "title": ["已发生的事实状态", "当前判断"],
+  "lead": "用核心事实、主要矛盾和保留条件写一至两句导语。",
+  "section_taglines": ["事实层短句", "结构层短句", "判断层短句", "验证层短句"],
+  "facts": ["第一条最重要的盘面事实。", "第二条最重要的盘面事实。"],
+  "metrics": [
+    {"value": "0.00", "label": "指标一", "meaning": "它说明什么", "direction": "neutral"},
+    {"value": "0.00", "label": "指标二", "meaning": "它说明什么", "direction": "green"},
+    {"value": "+0.00%", "label": "指标三", "meaning": "它说明什么", "direction": "red"},
+    {"value": "+0.00%", "label": "指标四", "meaning": "它说明什么", "direction": "red"}
+  ],
+  "columns": [
+    {"title": "盘面表现", "items": [
+      {"label": "对象一", "value": "状态", "direction": "neutral"},
+      {"label": "对象二", "value": "状态", "direction": "neutral"},
+      {"label": "对象三", "value": "状态", "direction": "neutral"}
+    ]},
+    {"title": "相对强势", "items": [
+      {"label": "对象一", "value": "+0.00%", "direction": "red"},
+      {"label": "对象二", "value": "状态", "direction": "red"},
+      {"label": "对象三", "value": "状态", "direction": "neutral"}
+    ]},
+    {"title": "外围与边界", "items": [
+      {"label": "对象一", "value": "状态", "direction": "neutral"},
+      {"label": "对象二", "value": "-0.00%", "direction": "green"},
+      {"label": "对象三", "value": "待验证", "direction": "neutral"}
+    ]}
+  ],
+  "judgments": [
+    {"title": "量价：当前判断", "body": "事实、解释和保留边界。"},
+    {"title": "结构：当前判断", "body": "事实、解释和保留边界。"},
+    {"title": "风格：当前判断", "body": "事实、解释和保留边界。"},
+    {"title": "外围：当前判断", "body": "事实、解释和保留边界。"}
+  ],
+  "watches": [
+    {"title": "验证条件一", "body": "怎样观察。"},
+    {"title": "验证条件二", "body": "怎样观察。"},
+    {"title": "验证条件三", "body": "怎样观察。"}
+  ],
+  "summary": "用一段话总结，不把修复升级成反转，不把待验证写成已确认。",
+  "quote": "一句有个人温度的感悟。",
+  "source_text": "数据来源：请填写具体来源。",
+  "disclaimer": "仅作市场观察，不构成投资建议。"
+}

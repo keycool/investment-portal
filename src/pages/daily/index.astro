@@ -1,0 +1,18 @@
+---
+import { getCollection } from "astro:content";
+import PageIntro from "../../components/PageIntro.astro";
+import ReviewCard from "../../components/ReviewCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { byNewest, isPreviewMode, isVisible } from "../../lib/content";
+
+const reviews = (await getCollection("reviews"))
+  .filter((entry) => entry.data.type === "daily" && isVisible(entry.data.status))
+  .sort(byNewest);
+---
+
+<BaseLayout title="每日复盘" description="每个 A 股交易日，从市场事实走到当前判断和待验证边界。" noindex={isPreviewMode}>
+  <PageIntro eyebrow="DAILY REVIEWS" title="每日复盘" description="每个交易日留下当时看见的事实、结构解释、当前判断和可能推翻判断的条件。原判断不因后来结果被覆盖。" />
+  <section class="listing shell">
+    {reviews.length > 0 ? reviews.map((review) => <ReviewCard review={review} />) : <div class="empty-state"><strong>尚无公开日复盘</strong><p>内容会在完成确认、来源和预览检查后出现。</p></div>}
+  </section>
+</BaseLayout>

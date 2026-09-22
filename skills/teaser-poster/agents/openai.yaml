@@ -1,0 +1,4 @@
+interface:
+  display_name: "Teaser Poster (Orbit 3:4)"
+  short_description: "Build and verify the 3:4 teaser card for daily review"
+  default_prompt: "Use $teaser-poster to turn my confirmed daily review into the orbit-paper 3:4 teaser (1080x1440) HTML and PNG."

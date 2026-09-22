@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<title>克莱因蓝配色对比方案｜investment-portal</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #111214; color: #e8e8e8; padding: 40px 20px 80px;
+  }
+  .page-title { text-align: center; margin-bottom: 8px; font-size: 22px; }
+  .page-sub { text-align: center; color: #888; font-size: 13px; margin-bottom: 48px; }
+  .plan { max-width: 780px; margin: 0 auto 64px; }
+  .plan-note {
+    display: flex; gap: 14px; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .plan-tag {
+    font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 4px;
+    background: #26282c; color: #ddd; letter-spacing: 1px;
+  }
+  .plan-name { font-size: 17px; font-weight: 700; }
+  .plan-desc { width: 100%; color: #9a9a9a; font-size: 13.5px; line-height: 1.7; }
+  .plan-desc b { color: #ccc; }
+
+  /* ---------- 迷你首页 mockup 通用 ---------- */
+  .mock { border-radius: 10px; overflow: hidden; border: 1px solid #2a2c30; font-size: 13px; }
+  .mock-nav { display: flex; justify-content: space-between; align-items: center; padding: 12px 22px; font-size: 12px; }
+  .mock-nav .brand { font-weight: 800; }
+  .mock-nav nav { display: flex; gap: 14px; opacity: .82; }
+  .mock-hero { padding: 34px 22px 30px; }
+  .mock-kicker { font-size: 10px; letter-spacing: 2.5px; margin-bottom: 12px; font-weight: 600; }
+  .mock-h1 { font-size: 26px; line-height: 1.3; font-weight: 800; }
+  .mock-h1 em { font-style: normal; opacity: .82; }
+  .mock-lead { margin-top: 12px; font-size: 12.5px; line-height: 1.7; opacity: .78; max-width: 480px; }
+  .mock-section { padding: 20px 22px; }
+  .mock-eyebrow { font-size: 10px; letter-spacing: 2px; font-weight: 700; margin-bottom: 4px; }
+  .mock-h2 { font-size: 16px; font-weight: 800; margin-bottom: 14px; }
+  .mock-card { border: 1px solid; border-radius: 8px; padding: 13px 15px; margin-bottom: 10px; }
+  .mock-card .meta { font-size: 10.5px; margin-bottom: 5px; opacity: .75; }
+  .mock-card .t { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+  .mock-card .s { font-size: 11.5px; line-height: 1.65; opacity: .72; }
+  .mock-tools { display: flex; gap: 10px; }
+  .mock-tools .tool { flex: 1; border: 1px solid; border-radius: 8px; padding: 11px 12px; }
+  .mock-tools .tool b { font-size: 12px; display: block; margin-bottom: 4px; }
+  .mock-tools .tool span { font-size: 10.5px; opacity: .7; line-height: 1.5; display: block; }
+  .mock-disclaimer { padding: 14px 22px; font-size: 10.5px; opacity: .55; text-align: center; border-top: 1px solid; }
+
+  /* 点阵纹理 */
+  .dots {
+    background-image: radial-gradient(rgba(255,255,255,.09) 1px, transparent 1px);
+    background-size: 12px 12px;
+  }
+
+  /* ---------- 方案 A：全站克莱因蓝 ---------- */
+  .mockA { background: #002FA6; color: #FDFDFE; }
+  .mockA .mock-card, .mockA .mock-tools .tool { border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.05); }
+  .mockA .mock-disclaimer { border-color: rgba(255,255,255,.18); }
+
+  /* ---------- 方案 A′：缓解版全站克莱因蓝 ---------- */
+  .mockAp { background: #002070; color: #DCE4F5; }          /* 阅读区：深蓝变体 */
+  .mockAp .mock-nav { background: #002FA6; color: #FDFDFE; border-bottom: 1px solid rgba(255,255,255,.14); }
+  .mockAp .mock-hero { background: #002FA6; color: #FDFDFE; } /* 门面：纯 IKB */
+  .mockAp .mock-h2 { color: #FDFDFE; }
+  .mockAp .mock-eyebrow { color: #9FB4E0; }
+  .mockAp .mock-card, .mockAp .mock-tools .tool {
+    border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.055);
+  }
+  .mockAp .mock-card .meta, .mockAp .mock-tools .tool span { color: #9FB4E0; }
+  .mockAp .mock-card .t, .mockAp .mock-tools .tool b { color: #FDFDFE; }
+  .mockAp .poster-slot {
+    display: flex; gap: 12px; align-items: center;
+    background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.16);
+    border-radius: 8px; padding: 10px; margin-bottom: 10px;
+  }
+  .mockAp .poster-pad { width: 54px; height: 72px; border-radius: 6px; background: #F5F1E8; flex: none;
+    display: flex; align-items: center; justify-content: center; font-size: 9px; color: #8a7f6a; }
+  .mockAp .poster-slot .s { font-size: 11px; line-height: 1.6; opacity: .8; }
+  .mockAp .mock-disclaimer { border-color: rgba(255,255,255,.14); color: #9FB4E0; opacity: 1; }
+
+  /* ---------- 方案 B：hero 蓝 + 内容近黑 ---------- */
+  .mockB { background: #080909; color: #ececec; }
+  .mockB .mock-hero { background: #002FA6; color: #FDFDFE; }
+  .mockB .mock-nav { background: #080909; border-bottom: 1px solid #1e2023; }
+  .mockB .mock-card, .mockB .mock-tools .tool { border-color: #26282c; background: #101214; }
+  .mockB .mock-accent { color: #5C7FF0; }
+  .mockB .mock-disclaimer { border-color: #1e2023; }
+
+  /* ---------- 方案 C：近黑底 + 克莱因蓝强调 ---------- */
+  .mockC { background: #080909; color: #ececec; }
+  .mockC .mock-nav { border-bottom: 1px solid #1e2023; }
+  .mockC .mock-kicker, .mockC .mock-eyebrow { color: #5C7FF0; }
+  .mockC .mock-h1 em { color: #5C7FF0; }
+  .mockC .mock-card { border-color: #26282c; background: #101214; border-left: 3px solid #2B52B5; }
+  .mockC .mock-tools .tool { border-color: #26282c; background: #101214; }
+  .mockC .tool b { color: #5C7FF0; }
+  .mockC .mock-btn { display: inline-block; margin-top: 4px; font-size: 10.5px; color: #FDFDFE; background: #002FA6; padding: 3px 10px; border-radius: 999px; }
+  .mockC .mock-disclaimer { border-color: #1e2023; }
+
+  /* 对比表 */
+  .compare { max-width: 780px; margin: 0 auto; }
+  .compare h3 { font-size: 15px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { border: 1px solid #2a2c30; padding: 8px 10px; text-align: left; line-height: 1.6; }
+  th { background: #1a1c1f; color: #bbb; font-weight: 600; }
+  td:first-child { color: #ddd; font-weight: 600; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="page-title">克莱因蓝配色改造 · 三个对比方案</div>
+<div class="page-sub">主色 #002FA6（国际克莱因蓝）· 文字 #FDFDFE · 均用真实站点文案渲染 · 仅为对比稿，未改动站点</div>
+
+<!-- ================ 方案 A ================ -->
+<div class="plan">
+  <div class="plan-note">
+    <span class="plan-tag">方案 A</span>
+    <span class="plan-name">全站克莱因蓝（激进）</span>
+    <div class="plan-desc">整站变成那张 deck 图的气质：<b>背景 #002FA6 纯色平铺 + #FDFDFE 文字 + 点阵点缀</b>。视觉冲击最强、识别度最高；代价是长文阅读整页高饱和蓝底容易疲劳，且<b>暖白色笔记本海报放进蓝底页面会明显「打架」</b>，需要给海报区加浅色衬底缓冲。</div>
+  </div>
+  <div class="mock mockA">
+    <div class="mock-nav dots">
+      <span class="brand">心猿意马的羊</span>
+      <nav><span>首页</span><span>每日复盘</span><span>每周复盘</span><span>归档</span><span>关于</span></nav>
+    </div>
+    <div class="mock-hero dots">
+      <div class="mock-kicker">MARKET REVIEW · OBSERVE / JUDGE / CALIBRATE</div>
+      <div class="mock-h1">把每天的判断，<em>留给时间检验。</em></div>
+      <div class="mock-lead">持续公开 A 股市场复盘。区分事实、判断与边界，保留原判断，并用带日期的校准记录面对偏差。</div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-eyebrow" style="color:#B8C6E8">ALL REVIEWS</div>
+      <div class="mock-h2">全部复盘</div>
+      <div class="mock-card">
+        <div class="meta">日复盘 · 2026-08-28</div>
+        <div class="t">上攻遇阻 / 新质力退潮</div>
+        <div class="s">成交 2.12 万亿微缩、千家 3.0:2.3、中位数 +0.19%；科创50 -1.85% 领跌——新质力退潮，小盘补位。</div>
+      </div>
+      <div class="mock-card">
+        <div class="meta">日复盘 · 2026-08-27</div>
+        <div class="t">放量上攻 / 新质力领衔</div>
+        <div class="s">放量上行，新质力方向领衔，广度跟上，结构转强。</div>
+      </div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-eyebrow" style="color:#B8C6E8">RESEARCH TOOLS</div>
+      <div class="mock-h2">研究工具</div>
+      <div class="mock-tools">
+        <div class="tool"><b>ERP 策略</b><span>宽基相对位置与股权风险溢价</span></div>
+        <div class="tool"><b>行业启动</b><span>ETF 核心成分低位启动观察</span></div>
+        <div class="tool"><b>估值罗盘</b><span>多维估值事实面板</span></div>
+      </div>
+    </div>
+    <div class="mock-disclaimer">本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议。</div>
+  </div>
+</div>
+
+<!-- ================ 方案 A′ ================ -->
+<div class="plan">
+  <div class="plan-note">
+    <span class="plan-tag">方案 A′</span>
+    <span class="plan-name">缓解版全站克莱因蓝（A 的可用化）</span>
+    <div class="plan-desc">仍是「全站蓝」，但做了五层减压：<b>① 双层蓝</b>——门面（导航+hero）保持纯 IKB #002FA6，正文阅读区降到深一档的 #002070（同色相、亮度降 1/3，整页仍是蓝色系但刺激减半）；<b>② 文字分层</b>——只有大标题用近纯白 #FDFDFE，正文用带蓝调柔白 #DCE4F5，次要信息 #9FB4E0，把「满屏刺眼白」变成有层次的白；<b>③ 卡片半透明白提层</b>——内容浮在 6% 白卡上，不再是字直接砸在纯色上；<b>④ 点阵纹理</b>打散纯色的板结感；<b>⑤ 海报区暖白衬底</b>——笔记本海报装进米白圆角卡，解决蓝底打架。整页对比度实测：正文 11.7:1（AAA），门面 10.6:1。</div>
+  </div>
+  <div class="mock mockAp">
+    <div class="mock-nav">
+      <span class="brand">心猿意马的羊</span>
+      <nav><span>首页</span><span>每日复盘</span><span>每周复盘</span><span>归档</span><span>关于</span></nav>
+    </div>
+    <div class="mock-hero dots">
+      <div class="mock-kicker">MARKET REVIEW · OBSERVE / JUDGE / CALIBRATE</div>
+      <div class="mock-h1">把每天的判断，<em>留给时间检验。</em></div>
+      <div class="mock-lead">持续公开 A 股市场复盘。区分事实、判断与边界，保留原判断，并用带日期的校准记录面对偏差。</div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-eyebrow">ALL REVIEWS</div>
+      <div class="mock-h2">全部复盘</div>
+      <div class="mock-card">
+        <div class="meta">日复盘 · 2026-08-28</div>
+        <div class="t">上攻遇阻 / 新质力退潮</div>
+        <div class="s">成交 2.12 万亿微缩、千家 3.0:2.3、中位数 +0.19%；科创50 -1.85% 领跌——新质力退潮，小盘补位。</div>
+      </div>
+      <div class="mock-card">
+        <div class="meta">日复盘 · 2026-08-27</div>
+        <div class="t">放量上攻 / 新质力领衔</div>
+        <div class="s">放量上行，新质力方向领衔，广度跟上，结构转强。</div>
+      </div>
+      <div class="poster-slot">
+        <div class="poster-pad">海报<br>预览</div>
+        <div>
+          <div class="t" style="font-size:13px; font-weight:700; color:#FDFDFE; margin-bottom:3px;">08-28 笔记本海报</div>
+          <div class="s">暖白海报装进米白衬底卡（#F5F1E8 圆角），蓝底不再与海报直接相撞。</div>
+        </div>
+      </div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-eyebrow">RESEARCH TOOLS</div>
+      <div class="mock-h2">研究工具</div>
+      <div class="mock-tools">
+        <div class="tool"><b>ERP 策略</b><span>宽基相对位置与股权风险溢价</span></div>
+        <div class="tool"><b>行业启动</b><span>ETF 核心成分低位启动观察</span></div>
+        <div class="tool"><b>估值罗盘</b><span>多维估值事实面板</span></div>
+      </div>
+    </div>
+    <div class="mock-disclaimer">本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议。</div>
+  </div>
+</div>
+
+<!-- ================ 方案 B ================ -->
+<div class="plan">
+  <div class="plan-note">
+    <span class="plan-tag">方案 B</span>
+    <span class="plan-name">Hero 克莱因蓝 + 内容区近黑（推荐 · 折中）</span>
+    <div class="plan-desc">首屏整块克莱因蓝（带点阵），向下硬切回现在的近黑阅读区。<b>门面有你喜欢的蓝，正文保持深色阅读舒适区</b>；暖白海报落在近黑底上依旧协调。代价：蓝/黑交界需要处理好（硬切或细线过渡），否则有「两张皮」感。</div>
+  </div>
+  <div class="mock mockB">
+    <div class="mock-nav">
+      <span class="brand">心猿意马的羊</span>
+      <nav><span>首页</span><span>每日复盘</span><span>每周复盘</span><span>归档</span><span>关于</span></nav>
+    </div>
+    <div class="mock-hero dots">
+      <div class="mock-kicker">MARKET REVIEW · OBSERVE / JUDGE / CALIBRATE</div>
+      <div class="mock-h1">把每天的判断，<em>留给时间检验。</em></div>
+      <div class="mock-lead">持续公开 A 股市场复盘。区分事实、判断与边界，保留原判断，并用带日期的校准记录面对偏差。</div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-eyebrow mock-accent">ALL REVIEWS</div>
+      <div class="mock-h2">全部复盘</div>
+      <div class="mock-card">
+        <div class="meta">日复盘 · 2026-08-28</div>
+        <div class="t">上攻遇阻 / 新质力退潮</div>
+        <div class="s">成交 2.12 万亿微缩、千家 3.0:2.3、中位数 +0.19%；科创50 -1.85% 领跌——新质力退潮，小盘补位。</div>
+      </div>
+      <div class="mock-card">
+        <div class="meta">日复盘 · 2026-08-27</div>
+        <div class="t">放量上攻 / 新质力领衔</div>
+        <div class="s">放量上行，新质力方向领衔，广度跟上，结构转强。</div>
+      </div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-eyebrow mock-accent">RESEARCH TOOLS</div>
+      <div class="mock-h2">研究工具</div>
+      <div class="mock-tools">
+        <div class="tool"><b>ERP 策略</b><span>宽基相对位置与股权风险溢价</span></div>
+        <div class="tool"><b>行业启动</b><span>ETF 核心成分低位启动观察</span></div>
+        <div class="tool"><b>估值罗盘</b><span>多维估值事实面板</span></div>
+      </div>
+    </div>
+    <div class="mock-disclaimer">本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议。</div>
+  </div>
+</div>
+
+<!-- ================ 方案 C ================ -->
+<div class="plan">
+  <div class="plan-note">
+    <span class="plan-tag">方案 C</span>
+    <span class="plan-name">近黑底 + 克莱因蓝强调色（保守）</span>
+    <div class="plan-desc">背景维持现在的 #080909，克莱因蓝只出现在<b>kicker、eyebrow、标题强调、卡片左边线、按钮</b>上。注意：#002FA6 在黑底上对比度只有 1.8:1（不可读），所以强调色用的是<b>提亮变体 #5C7FF0（5.3:1）和 #2B52B5</b>。整体变化最克制，最耐看，但「换颜色」的存在感最弱。</div>
+  </div>
+  <div class="mock mockC">
+    <div class="mock-nav">
+      <span class="brand">心猿意马的羊</span>
+      <nav><span>首页</span><span>每日复盘</span><span>每周复盘</span><span>归档</span><span>关于</span></nav>
+    </div>
+    <div class="mock-hero">
+      <div class="mock-kicker">MARKET REVIEW · OBSERVE / JUDGE / CALIBRATE</div>
+      <div class="mock-h1">把每天的判断，<em>留给时间检验。</em></div>
+      <div class="mock-lead">持续公开 A 股市场复盘。区分事实、判断与边界，保留原判断，并用带日期的校准记录面对偏差。</div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-eyebrow">ALL REVIEWS</div>
+      <div class="mock-h2">全部复盘</div>
+      <div class="mock-card">
+        <div class="meta">日复盘 · 2026-08-28</div>
+        <div class="t">上攻遇阻 / 新质力退潮 <span class="mock-btn">日复盘</span></div>
+        <div class="s">成交 2.12 万亿微缩、千家 3.0:2.3、中位数 +0.19%；科创50 -1.85% 领跌——新质力退潮，小盘补位。</div>
+      </div>
+      <div class="mock-card">
+        <div class="meta">日复盘 · 2026-08-27</div>
+        <div class="t">放量上攻 / 新质力领衔 <span class="mock-btn">日复盘</span></div>
+        <div class="s">放量上行，新质力方向领衔，广度跟上，结构转强。</div>
+      </div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-eyebrow">RESEARCH TOOLS</div>
+      <div class="mock-h2">研究工具</div>
+      <div class="mock-tools">
+        <div class="tool"><b>ERP 策略</b><span>宽基相对位置与股权风险溢价</span></div>
+        <div class="tool"><b>行业启动</b><span>ETF 核心成分低位启动观察</span></div>
+        <div class="tool"><b>估值罗盘</b><span>多维估值事实面板</span></div>
+      </div>
+    </div>
+    <div class="mock-disclaimer">本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议。</div>
+  </div>
+</div>
+
+<!-- ================ 对比表 ================ -->
+<div class="compare">
+  <h3>三方案对比</h3>
+  <table>
+    <tr><th>维度</th><th>A 全站蓝</th><th>B Hero蓝+近黑</th><th>C 蓝作强调色</th></tr>
+    <tr><td>视觉冲击</td><td>★★★★★ 识别度最高</td><td>★★★★ 门面有蓝</td><td>★★ 克制</td></tr>
+    <tr><td>长文阅读舒适度</td><td>较弱（整页高饱和）</td><td>好（正文仍是深色）</td><td>最好（现状不变）</td></tr>
+    <tr><td>与暖白笔记本海报的相容</td><td>冲突明显，需加衬底</td><td>协调（海报在近黑区）</td><td>完全协调</td></tr>
+    <tr><td>改动范围</td><td>全站 CSS 变量 + 海报区处理</td><td>hero 区 + 过渡处理</td><td>强调色变量替换</td></tr>
+    <tr><td>风险</td><td>整站气质剧变，回退成本高</td><td>蓝黑交界处理</td><td>几乎无</td></tr>
+  </table>
+  <p style="margin-top:14px; color:#9a9a9a; font-size:13px; line-height:1.7;">
+    我的意见（标为意见）：客户甲已倾向方案 A，那就用 <b>A′ 缓解版</b>落地——门面纯 IKB 保住你喜欢的气质，阅读区降饱和 + 文字分层解决疲劳问题，海报加米白衬底解决冲突。对比度实测全部 AAA（正文 11.4:1、门面 10.6:1、次要 7.0:1）。选定 A′ 后我先只改首页验证效果，文章页第二步跟进；改动全部走 CSS 变量，随时可回退。
+  </p>
+</div>
+
+</body>
+</html>

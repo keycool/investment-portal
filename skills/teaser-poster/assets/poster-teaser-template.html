@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{PAGE_TITLE}}</title>
+  <style>
+    :root{
+      --paper:#F5EEDF; --teal:#16465B; --teal2:#4F8582; --gold:#D5A746;
+      --ink:#16465B; --red:#A63A2B; --green:#3D6B57; --muted:#6E7F80;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;}
+    body{
+      position:relative;width:1080px;height:1440px;overflow:hidden;
+      color:var(--ink);
+      background:#F5EEDF url("./orbit-paper-3x4/background.png") center/cover no-repeat;
+      font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    /* 内容区：顶对齐安全区上缘(y244)，向下伸展至 y≈1100，底部留白≥300px */
+    .safe{position:absolute;left:144px;top:244px;width:792px;height:860px;
+      display:flex;flex-direction:column;}
+
+    .topbar{display:flex;justify-content:space-between;align-items:center;}
+    .brand{font-size:18px;font-weight:600;letter-spacing:2px;color:var(--teal);}
+    .brand .pill{margin-left:10px;font-size:11px;font-weight:600;letter-spacing:1px;
+      color:var(--teal);border:1.5px solid var(--teal);padding:3px 11px;border-radius:20px;vertical-align:middle;}
+    .date{font-size:13px;color:var(--teal2);letter-spacing:1px;}
+
+    .eyebrow{margin-top:36px;color:var(--gold);font-size:13px;font-weight:600;letter-spacing:6px;}
+
+    .hook{margin-top:22px;}
+    .hook h1{margin:0;font-size:62px;font-weight:700;letter-spacing:2px;line-height:1.22;color:var(--teal);}
+    .hook h1 .accent{color:var(--gold);}
+    .hook .lead{margin:22px 0 0;font-size:20px;line-height:1.7;color:var(--teal2);letter-spacing:.5px;}
+
+    .signals{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:46px;}
+    .sig{border-top:2px solid var(--teal);padding-top:14px;}
+    .sig .tag{font-size:12px;font-weight:600;letter-spacing:3px;color:var(--gold);}
+    .sig .val{margin-top:10px;font-size:42px;font-weight:700;letter-spacing:-1px;line-height:1;color:var(--teal);}
+    .sig .val.up{color:var(--red);}
+    .sig .val.down{color:var(--green);}
+    .sig .lbl{margin-top:10px;font-size:13px;color:var(--muted);letter-spacing:.5px;line-height:1.4;}
+
+    .verdict{margin-top:44px;padding:20px 28px;border-radius:12px;text-align:center;
+      background:var(--teal);color:var(--paper);}
+    .verdict b{font-size:20px;font-weight:600;letter-spacing:1.5px;}
+    .verdict span{font-size:15px;opacity:.85;margin-left:12px;letter-spacing:.5px;}
+
+    .quote{margin-top:40px;text-align:center;font-size:26px;font-weight:700;line-height:1.55;color:var(--teal);}
+    .quote i{color:var(--gold);font-style:normal;}
+
+    .cta{margin:auto auto 0;padding:20px 46px;border-radius:40px;text-align:center;
+      background:var(--teal);color:var(--paper);font-size:22px;font-weight:700;letter-spacing:1px;}
+
+    .foot{margin-top:26px;display:flex;justify-content:center;color:var(--muted);font-size:11px;letter-spacing:.5px;}
+  </style>
+</head>
+<body>
+  <main class="safe">
+    <div class="topbar">
+      <div class="brand">心猿意马的羊<span class="pill">{{PILL}}</span></div>
+      <div class="date">{{DISPLAY_DATE}}</div>
+    </div>
+
+    <div class="eyebrow">{{EYEBROW}}</div>
+
+    <div class="hook">
+      <h1>{{TITLE_1}}<br><span class="accent">{{TITLE_2}}</span></h1>
+      <p class="lead">{{LEAD}}</p>
+    </div>
+
+    <div class="signals">
+      {{SIGNALS_HTML}}
+    </div>
+
+    <div class="verdict"><b>{{VERDICT_B}}</b><span>{{VERDICT_SPAN}}</span></div>
+
+    <div class="quote"><i>「</i>{{QUOTE}}<i>」</i></div>
+
+    <div class="cta">{{CTA}}</div>
+
+    <div class="foot">{{SOURCE_TEXT}} {{DISCLAIMER}}</div>
+  </main>
+</body>
+</html>

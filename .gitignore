@@ -1,0 +1,28 @@
+node_modules/
+dist/
+dist-preview/
+.astro/
+.DS_Store
+*.log
+__pycache__/
+*.pyc
+_tmp_*
+
+# 临时备份（git 本身就是版本控制，备份文件不入库；本地保留）
+*.bak
+*.bak-*
+*.orig
+
+# ---------------------------------------------------------------
+# 生产中间产物（content-inbox/）= A 工作台的产出边界，约 184 MB。
+# 其中图片、HTML 渲染文件体积大且**不参与站点构建**，不入库；
+# 保留 .md / .json（交接文档、雪球草稿、poster 数据）以便追溯。
+# 复盘正式内容源是 src/content/reviews/，站点海报成品在 public/images/posters/。
+# 本地 D:\CC\shared 始终保有完整副本。
+# ---------------------------------------------------------------
+content-inbox/**/*.png
+content-inbox/**/*.jpg
+content-inbox/**/*.jpeg
+content-inbox/**/*.webp
+content-inbox/**/*.gif
+content-inbox/**/*.html

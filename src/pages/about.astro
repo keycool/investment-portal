@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageIntro from "../components/PageIntro.astro";
+import { isPreviewMode } from "../lib/content";
+import { researchTools } from "../data/researchTools";
+---
+
+<BaseLayout title="关于" description="关于心猿意马的羊、复盘编辑原则、研究工具和永久边界。" noindex={isPreviewMode}>
+  <PageIntro eyebrow="ABOUT" title="关于这个项目" description="一个人长期、准时地公开市场复盘，用历史记录证明判断过程，而不是用身份压过读者。" />
+  <div class="about-grid shell">
+    <article class="about-main prose">
+      <h2>平视地记录，诚实地校准</h2>
+      <p>我是“心猿意马的羊”。这里面向喜欢交易、愿意共同学习的人，记录市场事实、结构解释、当前判断和待验证条件。</p>
+      <p>我不会把结果倒写成当时就知道，也不会用单次判断代替长期记录。判断发布后保留原文；后续事实出现时，只能追加带日期的校准。</p>
+
+      <h2>内容怎样产生</h2>
+      <p>飞书确认终稿是思考母稿。外部复盘工作台负责事实读取、三段文字确认、飞书回填和海报 QA；本站负责接收交接包、公开编辑、MDX、归档、预览和校准。</p>
+
+      <h2 id="tools">研究工具</h2>
+      <p>以下工具是独立的研究入口，不属于博客内容源，也不会自动改写网站判断：</p>
+      <ul class="tool-links">
+        {researchTools.map((tool) => (
+          <li><a href={tool.url} target="_blank" rel="noopener noreferrer"><strong>{tool.name}</strong><span>{tool.description} ↗</span></a></li>
+        ))}
+      </ul>
+    </article>
+    <aside class="about-aside">
+      <span class="eyebrow">EDITORIAL CONTRACT</span>
+      <dl>
+        <div><dt>01</dt><dd><strong>事实可追溯</strong><span>展示数据日期和来源。</span></dd></div>
+        <div><dt>02</dt><dd><strong>判断有边界</strong><span>写下可能推翻判断的条件。</span></dd></div>
+        <div><dt>03</dt><dd><strong>原文不覆盖</strong><span>用追加校准面对偏差。</span></dd></div>
+        <div><dt>04</dt><dd><strong>隐私不公开</strong><span>不展示持仓、仓位和账户。</span></dd></div>
+      </dl>
+    </aside>
+  </div>
+</BaseLayout>

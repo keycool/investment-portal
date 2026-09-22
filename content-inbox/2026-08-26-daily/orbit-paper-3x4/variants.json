@@ -1,0 +1,43 @@
+{
+  "pack_id": "orbit-paper-3x4",
+  "version": "1.1.0",
+  "selection_rule": "Choose one background variant per output; never overwrite an existing variant.",
+  "variants": [
+    {
+      "id": "orbit-paper-3x4",
+      "file": "background.png",
+      "metadata_file": "canvas.json",
+      "description": "Clean orbital paper background with a large central text area.",
+      "mood": [
+        "professional",
+        "data-led",
+        "clean"
+      ],
+      "name_cn": "专业轨道"
+    },
+    {
+      "id": "orbit-paper-3x4-orange-cats-v1",
+      "file": "background-orange-cats-v1.png",
+      "metadata_file": "variants.json",
+      "derived_from": "orbit-paper-3x4",
+      "description": "The same orbital paper background with playful orange tabby cats around the perimeter.",
+      "native_size": [
+        1086,
+        1448
+      ],
+      "sha256": "495C9BAA377C68515D6F3430E09F57EF827FBB77CBDEB081A9505846DA84B774",
+      "recommended_text_area": {
+        "x": 150,
+        "y": 390,
+        "width": 770,
+        "height": 500
+      },
+      "recommended_engine": "hybrid",
+      "mood": [
+        "playful",
+        "light"
+      ],
+      "name_cn": "橘猫彩蛋"
+    }
+  ]
+}

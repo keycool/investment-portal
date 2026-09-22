@@ -1,0 +1,4 @@
+interface:
+  display_name: "Daily Review Notebook Poster"
+  short_description: "Build and verify a notebook-style market review poster"
+  default_prompt: "Use $daily-review-notebook-poster to turn my confirmed daily market review into the standard notebook-style HTML and 1080x2000 PNG."
