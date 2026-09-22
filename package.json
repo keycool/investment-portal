@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "astro dev",
     "check": "astro check",
-    "build": "astro build && node scripts/prune-unpublished-posters.mjs",
+    "build": "astro build && node scripts/prune-unpublished-posters.mjs && node scripts/optimize-dist-images.mjs",
     "build:preview": "astro build --mode preview --outDir dist-preview",
     "prune:posters": "node scripts/prune-unpublished-posters.mjs",
+    "optimize:images": "node scripts/optimize-dist-images.mjs",
     "preview": "astro preview"
   },
   "dependencies": {

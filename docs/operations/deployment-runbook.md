@@ -148,7 +148,7 @@
 
 ---
 
-## 7. 【小金】代码里的域名替换（4 处，必须最后做）
+## 7. 【小金】代码里的域名替换（5 处，必须最后做）
 
 **前置条件：三个子域名已绑好并验证通过。** 否则博客上的研究工具链接会变成死链。
 
@@ -162,7 +162,7 @@
 
 > `content-inbox/` 下历史草稿里的 localhost / vercel.app 属**已发布存档，不改**。
 
-改完跑：`npm run check` → `npm run build` → 确认 26 页正常。
+改完跑：`npm run check` → `npm run build` → 确认 30 页正常。
 
 ---
 
@@ -239,11 +239,11 @@
 | 项 | 结果 |
 |---|---|
 | `npm run check` | 0 errors / 0 warnings / 0 hints |
-| `npm run build` | **26 page(s) built**（含 `/sitemap.xml`） |
+| `npm run build` | 当次 **26 page(s) built**（含 `/sitemap.xml`）；B 侧 20:30 补 4 篇后为 **30 页** |
 | `dist/` 内 `localhost:4321` 残留 | **0 个文件**（修复前首页命中） |
-| 首页 og:image | `https://www.fupanxinyuan.com/og.png` |
+| 首页 og:image | `https://www.fupanxinyuan.com/og.png`（2026-09-22 21:37 起改为 `og.jpg`，见第 12.2 节） |
 | 单篇 canonical | `https://www.fupanxinyuan.com/daily/2026-09-14/` |
-| `sitemap.xml` | 26 条 `<loc>`，全部绝对地址 |
+| `sitemap.xml` | 26 条 `<loc>`，全部绝对地址（现为 **30 条**，逐条 200） |
 
 ### 10.3 DNS 与证书实测（修复前基线，证明域名层已通）
 
@@ -315,6 +315,70 @@ git -c http.proxy= -c https.proxy= push origin main
 
 ---
 
+## 12. 上线后收敛清理：来源口径归一 + 图片体积（2026-09-22 21:40）
+
+### 12.1 估值表「来源」列归一为「公开市场数据」
+
+`weekly/2026-W37.mdx` / `2026-W38.mdx` 各有 4 处旧标签 **「周复盘估值数据」**：
+
+| 位置 | 处数 | 处理 |
+|---|---|---|
+| `sources[].label`（frontmatter，**不渲染**） | 1 | → `公开市场数据（宽基 PE / 十年期国债 / ERP）` |
+| 关键事实表「来源」列（**会渲染**） | 3 | → `公开市场数据` |
+
+理由：同一张表其余 15 行早已是「公开市场数据」，旧标签既不一致、又带自指味道。
+ERP 一行的来源保持用户拍板后的 **「作者自填」/「作者记录」**（该值无独立来源）。
+改前备份：`D:\CC\shared\backups\reviews-20260922-before-sourcelabel\`。
+
+> ⚠️ 踩坑：**不要并行编辑同一个文件**。两笔 `Edit` 同时发给同一个 `.mdx` 会互相覆盖、
+> 静默丢一笔（本次 W37 丢 label、W38 丢表格，复查 `grep` 才发现）。同一文件的多处改动必须串行。
+
+### 12.2 `dist/` 图片压缩（新增构建后步骤）
+
+**为什么必须放在构建后：** 海报由外部生产链路以 PNG 交付进 `public/images/posters/`
+（1080×2000，单张 1.5–2.8 MB），而 `public/` 会**原样**进 `dist/`；页面里却只按
+`max-width: 470px` 显示。改 `public/` 源文件会破坏交接链，所以压缩只作用于 `dist/`。
+
+`npm run build` 现在是三步：
+
+```bash
+astro build && node scripts/prune-unpublished-posters.mjs && node scripts/optimize-dist-images.mjs
+```
+
+`scripts/optimize-dist-images.mjs` 做三件事（只读写 `dist/`、幂等、支持 `--dry-run`）：
+
+1. `dist/images/posters/*.png|jpg` → **同分辨率** WebP（q82），删原文件；
+2. `dist/og.png` → `dist/og.jpg`（宽 1200 / JPEG q86 / mozjpeg），删原文件；
+3. 回写 `dist/**/*.html` 里的引用（`*.png` → `*.webp`、`/og.png` → `/og.jpg`）。
+
+收尾有两道断言：海报目录不得残留未转换文件；HTML 引用的海报必须存在、`/og.png` 不得再出现。
+
+依赖说明：`sharp` 是 astro 声明的图片依赖（`sharp: ^0.34.0 || ^0.35.0`，实测 0.35.3），
+由 npm 提升到顶层 `node_modules`，脚本直接复用、**不新增自己的依赖**；缺失时给一句人话而非抛栈。
+`build:preview` **不压缩**（预览要看全部海报，也不追求体积）。
+
+**实测（2026-09-22 21:37）**
+
+| 项 | 压前 | 压后 |
+|---|---|---|
+| `dist/images/posters/`（22 张） | 48.7 MB | **5.4 MB** |
+| `dist/og.png` | 2.5 MB | **92 KB**（`og.jpg`，1200×800） |
+| `dist/` 合计 | 约 54 MB | **6.0 MB** |
+| 单张示例 `poster-2026w37` | 2485 KB | **229 KB**（1080×2000 不变） |
+
+复验：`npm run check` 0 错误；30 页构建通过；22 个海报引用 **0 缺失**；
+页面引用已是 `/images/posters/poster-2026w37.webp`；首页 `og:image` =
+`https://www.fupanxinyuan.com/og.jpg`；二次运行「转换 0 个文件」（幂等）。
+分辨率未动，海报放大细看仍清晰。
+
+### 12.3 未处理（记录备查）
+
+复盘详情页目前 `socialImage = false`（`ReviewArticle.astro` 取 `data.cover`，而复盘用的是
+`data.poster`）→ **详情页没有 `og:image`**，分享单篇复盘时预览卡片无图。
+海报是 3:4 竖图，不是理想的 og 比例（1.91:1），要修需要单独决定截取方案。
+
+---
+
 ## 附：已完成 / 待完成
 
 **已完成（2026-09-22）**
@@ -337,11 +401,12 @@ git -c http.proxy= -c https.proxy= push origin main
 - ✅ 五个地址 + 四个 TLS 证书实测通过；`/daily/` 列表 **19 条**；「关于」页研究工具已指向新域名；sitemap **30 条**逐条 200
 - ✅ 复盘详情页撤下「数据与来源」「校准记录」两块（用户 2026-09-22 决定，见第 11 节）
 - ✅ 第 10 节两项缺陷已修（og:image localhost、缺 canonical/robots/sitemap）
+- ✅ 估值表「来源」列归一为「公开市场数据」（第 12.1 节）
+- ✅ `dist/` 图片压缩构建后步骤：54 MB → **6.0 MB**，海报转同分辨率 WebP、og 图转 JPEG（第 12.2 节）
 
 **待客户甲**
 
 - ⬜ **手机 4G/5G 流量**打开 `https://www.fupanxinyuan.com/` 复核（最接近访客真实体验）
-- ⬜ 「关于」页编辑契约 01 条文案对齐（原文「展示数据日期和来源」与现状不符，见第 11.2 节）
 - ⬜ 三个存量站的 GitHub Actions 管道下次自动提交时，确认仍正常生效
 
 **已消解（2026-09-22 第 11 节撤块后自动关闭）**
@@ -352,8 +417,9 @@ git -c http.proxy= -c https.proxy= push origin main
 
 **其他待定优化项**
 
-- ⬜ `public/images/posters/` 有 18 个文件（**34.2 MB**）从未被任何 MDX 引用
-  （teaser 引流版 / orange-cats / 背景图），可清理以减小仓库与部署体积
-- ⬜ `public/og.png` 为 **2.5 MB**，超出社交平台抓取上限的常见经验值（建议压到 200 KB 内、1200×630）
+- ✅ ~~`public/images/posters/` 有 18 个文件（**34.2 MB**）从未被任何 MDX 引用~~
+  —— 已由构建后步骤裁剪，**未发布篇目的海报同时不再上线**（见第 12.2 节）
+- ✅ ~~`public/og.png` 为 **2.5 MB**~~ —— 已在 `dist/` 转为 `og.jpg`（92 KB / 1200×800，见第 12.2 节）
+- ⬜ 复盘详情页缺 `og:image`（`data.cover` 未用于复盘），分享单篇无预览图（见第 12.3 节）
 - ⬜ `researchNotes` 集合为空，构建期会打印
   `The collection "researchNotes" does not exist or is empty.`（**非错误，构建正常完成**）
