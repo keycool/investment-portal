@@ -28,7 +28,7 @@ export interface Channel {
 }
 
 /** 博客主站链接 = 各渠道唯一通用入口。当前为内网临时地址（Astro 本机预览）；真实域名上线后只在此替换 */
-export const blogUrl = "http://localhost:4321";
+export const blogUrl = "https://www.fupanxinyuan.com";
 
 /** 关于我（固定文案，各渠道通用） */
 export const aboutText =

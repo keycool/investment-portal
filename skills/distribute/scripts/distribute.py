@@ -26,7 +26,7 @@ XUEQIU_TAGS = "#A股复盘 #每日复盘 #交易复盘"
 XUEQIU_TAGS_WEEKLY = "#A股复盘 #周度复盘 #交易复盘"
 XHS_TAGS = "#A股 #每日复盘 #ETF #投资日记"
 # 通用入口 = 个人博客（唯一引流去向）；当前为内网临时地址，真实域名上线后替换 channels.ts 的 blogUrl 并同步此处
-BLOG_URL = "http://localhost:4321"
+BLOG_URL = "https://www.fupanxinyuan.com"
 BLOG_INTRO = "A 股每日复盘、历史归档与判断校准的唯一入口"
 
 def parse_mdx(text: str):

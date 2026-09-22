@@ -138,9 +138,9 @@
      `content-inbox/` 的 png/jpg/webp/gif/html（约 184 MB 生产中间产物，不入库，本地保留）
    - `.gitattributes`：文本统一 LF；**`.bat` / `.cmd` 强制 CRLF**（否则 `启动博客.bat` 会被转 LF 而失效）
    - 仓库级身份 `keycool <keycool@163.com>`
-3. ⬜ 推送到 GitHub 私有仓库（**待客户甲提供仓库地址 / 授权**）
+3. ✅ 已推送到 GitHub 私有仓库：`https://github.com/keycool/investment-portal.git`
    - 本机无 `gh` CLI、无 SSH 私钥；但已装 Git Credential Manager，HTTPS 推送时应弹窗授权
-4. [客户甲] 在 Vercel → Add New → Project → 导入该仓库
+4. ✅ 已在 Vercel 导入该仓库并完成首次部署：`investment-portal-kappa.vercel.app`
    - Framework 自动识别为 **Astro**；Build Command `npm run build`；Output `dist`
    - 本博客是 `output: "static"` 纯静态站，**不需要装任何 adapter**
 5. [客户甲] 绑定 `www.fupanxinyuan.com` + `fupanxinyuan.com`，设 www 为主域名
@@ -204,10 +204,11 @@
 - ✅ git 仓库已建立：首次提交 `7b199ed`，**239 文件 / 83.1 MB**，分支 `main`（**尚未配置远端**）
 
 **待客户甲**
-- ⬜ Vercel 三个存量站绑子域名（**可立即开始，不依赖小金**）
+- ✅ Vercel 三个存量站已绑子域名并验证通过（2026-09-22）
 - ⬜ 阿里云云解析加 5 条记录
-- ⬜ 在 GitHub 新建**私有**仓库，把仓库地址给小金（或提供授权方式）
-- ⬜ Vercel 导入博客仓库 → 为博客绑 `www` + 根域名
+- ✅ 在 GitHub 新建私有仓库并完成推送：`keycool/investment-portal`
+- ✅ Vercel 已导入博客仓库并完成部署：`investment-portal-kappa.vercel.app`
+- ⬜ 为博客绑定 `www` + 根域名
 
 **待小金**
 - ⬜ 推送到 GitHub 私有仓库（需客户甲先给仓库地址 / 授权）
