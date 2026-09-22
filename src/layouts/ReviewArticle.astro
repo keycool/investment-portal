@@ -62,46 +62,13 @@ const socialImage = data.cover ? data.cover.image.src : false;
       <slot />
     </div>
 
-    <section class="article-support sources" aria-labelledby="sources-heading">
-      <div class="support-heading">
-        <span class="eyebrow">SOURCES</span>
-        <h2 id="sources-heading">数据与来源</h2>
-      </div>
-      <ol>
-        {data.sources.map((source) => (
-          <li>
-            <div>
-              {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.label}</a> : <strong>{source.label}</strong>}
-              <time datetime={source.data_as_of}>数据截至 {formatDate(source.data_as_of)}</time>
-            </div>
-            <p>{source.note}</p>
-          </li>
-        ))}
-      </ol>
-    </section>
-
-    <section class="article-support calibration" aria-labelledby="calibration-heading">
-      <div class="support-heading">
-        <span class="eyebrow">CALIBRATION</span>
-        <h2 id="calibration-heading">校准记录</h2>
-      </div>
-      {
-        data.calibrations.length > 0 ? (
-          <ol>
-            {data.calibrations.map((item) => (
-              <li>
-                <time datetime={item.date}>{formatDate(item.date)}</time>
-                <strong>{item.result}</strong>
-                <p>{item.note}</p>
-                {item.rule_adjustment && <p>规则调整：{item.rule_adjustment}</p>}
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p class="calibration-empty">尚未追加。后续结果只能以带日期的记录补充，不能覆盖原判断。</p>
-        )
-      }
-    </section>
+    {/*
+      「数据与来源」「校准记录」两块按用户 2026-09-22 决定**不再在页面上展示**。
+      注意：这里只撤掉渲染，**没有删 frontmatter 数据**——
+      ① `content.config.ts` 的 `sources` 是 `min(1)` 必填，删数据会直接构建失败；
+      ② `publishing-workflow.md` §6.1 要求飞书母稿来源署名带 revision，属站内可追溯信息。
+      数据仍完整保留在 `src/content/reviews/*.mdx`，要恢复展示把下面两段 JSX 放回即可。
+    */}
 
     <section class="article-support about" aria-labelledby="about-heading">
       <div class="support-heading">
