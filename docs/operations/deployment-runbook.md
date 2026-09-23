@@ -269,6 +269,40 @@ git -c http.proxy= -c https.proxy= push origin main
 
 （`git ls-remote` 同样要加这两个 `-c` 才能验证远端状态。）
 
+> **代理端口会变**：2026-09-22 是 `127.0.0.1:9681`，2026-09-23 变成 `127.0.0.1:2417`。
+> 别记死端口，用 `env | grep -i proxy` 现查。
+
+#### 兜底：github.com 完全不可达时，走 api.github.com 的 Git Data API
+
+**症状**：`git push` 报 `Failed to connect to github.com:443`（直连超时），走代理报 `CONNECT tunnel failed, response 502`。
+即 **github.com 本体不通**。但实测同一时刻 **`api.github.com` 通**（`curl -sI https://api.github.com` → 200），
+凭据也在（`git credential fill` 能取回）。
+
+**做法**：用 Git Data API 手工组装提交并更新 ref，等价于一次 push：
+
+1. `GET /repos/{o}/{r}/git/ref/heads/main` 取远端 SHA；`GET .../git/commits/{sha}` 取父 tree；
+2. 对每个改动文件 `POST .../git/blobs`（`{content: base64, encoding: "base64"}`）；删除项在 tree 里写 `sha: null`；
+3. `POST .../git/trees`（带 `base_tree`）建新 tree；
+4. **★ 一致性校验：新 tree 的 sha 必须等于本地 `git rev-parse HEAD^{tree}`**——不等就中止、**绝不更新 ref**；
+5. `POST .../git/commits`（带上本地提交的 message/author/committer）→ `PATCH .../git/refs/heads/main`（`force: false`）。
+
+**注意**：这样创建的提交只在 GitHub 侧，**本地拿不到该对象**（github.com 不通、fetch 不了），
+所以 `git update-ref` 会失败、本地与远端 SHA 分叉。**但两边 tree 相同、内容逐字节一致**。
+等 github.com 恢复后执行一次即可对齐（tree 相同，`reset --hard` 不会改动工作区）：
+
+```bash
+git fetch origin && git reset --hard origin/main
+```
+
+凭据取用（**不要把 token 打进日志或会话**）：
+
+```bash
+CRED=$(printf "protocol=https\nhost=github.com\n\n" | git credential fill 2>/dev/null)
+TOKEN=$(printf '%s\n' "$CRED" | sed -n 's/^password=//p')
+```
+
+（2026-09-23 首次使用，推送 `f8c9567 → 8f730397` 成功，Vercel 由 push 正常触发部署。）
+
 ---
 
 ## 11. 复盘详情页撤下「数据与来源」「校准记录」（2026-09-22）
