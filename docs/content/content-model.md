@@ -58,10 +58,10 @@ updated_at: null
 judgment_status: pending
 featured: true
 sources:
-  - label: 公开市场数据（具体提供方待补）
+  - label: 公开市场数据
     url: null
     data_as_of: "2026-08-13"
-    note: 历史正式海报中的来源描述，进入 preview 前补齐。
+    note: 行情数据取自公开市场行情，按既有口径不署名具体提供方（2026-09-10 定稿）。
 poster:
   src: null
   alt: 2026-08-13 每日复盘海报

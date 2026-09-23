@@ -13,7 +13,12 @@ interface Props {
 
 const { review, previous, next } = Astro.props;
 const { data } = review;
-const socialImage = data.cover ? data.cover.image.src : false;
+// 复盘用的是 `poster` 字段、不是 `cover`，所以这里恒为「没有专属分享图」。
+// 2026-09-23 之前传的是 `false` —— BaseLayout 会因此**完全不输出 og:image**，
+// 分享单篇复盘到微信/雪球时卡片无图。现改为传 `undefined`，回落到 BaseLayout 的
+// 站点默认分享图 `/og.png`（构建后步骤 scripts/optimize-dist-images.mjs 会把它
+// 转成 og.jpg 并回写引用）。等日后做了横版专属分享图（1200×630）再替换此处。
+const socialImage = data.cover ? data.cover.image.src : undefined;
 ---
 
 <BaseLayout title={data.title} description={data.summary} noindex={isPreviewMode || data.status !== "public"} socialImage={socialImage}>

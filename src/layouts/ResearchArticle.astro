@@ -9,7 +9,9 @@ interface Props {
 
 const { note } = Astro.props;
 const { data } = note;
-const socialImage = data.cover ? data.cover.image.src : false;
+// 与 ReviewArticle 同一处理：没有封面就回落到站点默认分享图，
+// 而不是传 `false`（那会让页面完全不输出 og:image）。详见 ReviewArticle.astro 的注释。
+const socialImage = data.cover ? data.cover.image.src : undefined;
 ---
 
 <BaseLayout title={data.title} description={data.summary} noindex={isPreviewMode || data.status !== "public"} socialImage={socialImage}>

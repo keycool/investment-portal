@@ -376,6 +376,50 @@ astro build && node scripts/prune-unpublished-posters.mjs && node scripts/optimi
 复盘详情页目前 `socialImage = false`（`ReviewArticle.astro` 取 `data.cover`，而复盘用的是
 `data.poster`）→ **详情页没有 `og:image`**，分享单篇复盘时预览卡片无图。
 海报是 3:4 竖图，不是理想的 og 比例（1.91:1），要修需要单独决定截取方案。
+→ **2026-09-23 已处置，见第 13.2 节。**
+
+---
+
+## 13. 清理历史迁移草稿 + 详情页分享图兜底（2026-09-23）
+
+### 13.1 删除 4 篇历史迁移草稿
+
+`daily/2026-08-10.mdx`、`daily/2026-08-12.mdx`、`daily/2026-08-13.mdx`、`weekly/2026-W32.mdx`
+四篇 `status: draft` 草稿，及其配套海报
+`public/images/posters/poster-{20260810,20260812,20260813,2026w32}.png`，经客户甲确认**整体删除**。
+
+**依据**（`docs/content/historical-content-selection.md` §2 结语，2026-08-18 已写明）：
+
+> 四篇均保持 `status: draft`。现有证据足以证明「可以按新结构编辑」，**不足以证明已经达到网站 `preview` 门槛**。
+
+三项前置从未补齐：① 未对照飞书已确认终稿核对题眼/点评/感悟（`sources` 自己写着「待飞书确认终稿复核」、`url: null`）；
+② 行情来源标注「具体提供方待补」；③ `completed_at: null`（真实完成时间未记录）。
+且它们不在正式链路上——`content-inbox/` 交接包最早只到 `2026-08-24`。
+
+| 项 | 处置 |
+|---|---|
+| 4 篇 MDX | 已删除（reviews 27 篇 → **23 篇** = public 22 + preview 1） |
+| 4 张海报 PNG | 已删除（`public/images/posters/` 45 → **41**） |
+| 站点页数 | **不变，仍是 30 页**——draft 本就不进生产构建（`isVisible` 只放行 public），所以删的是"永远不会上线的文件"，不是线上页面。仅 `build:preview` / `dev` 下少 4 页 |
+| 备份 | `D:\CC\shared\backups\reviews-20260923-before-drop-legacy-drafts\`（含 MDX 与 `poster/` 子目录） |
+| 恢复 | 上述备份，或 `git log --diff-filter=D -- <路径>` 从历史取回 |
+| 双 log | `completion-log.md` 四行合并为一行「已删除」记录；`distribution-log.md` 本就未登记 |
+
+> 删除前做过只读扫描：这 4 篇**不渲染**（draft 不通过 `isVisible`），除 `docs/` 里的审计记载外无交叉引用；
+> 归档月页与 sitemap 都由 public 篇目推导，不受影响。
+
+### 13.2 详情页 `og:image` 兜底
+
+**缺陷**：`ReviewArticle.astro` 原本写 `const socialImage = data.cover ? data.cover.image.src : false`。
+复盘用的是 `poster` 字段、永远没有 `cover`，于是恒为 `false`；而 `BaseLayout` 见到 `false` 会**完全不输出 `og:image`**——
+关键区别：**`false` 是「一个都不要」，`undefined` 才是「用默认值」**。结果单篇复盘分享到微信/雪球时卡片无图。
+
+**改法**：两处 `false` → `undefined`（`ReviewArticle.astro` + `ResearchArticle.astro`），回落到 `BaseLayout` 的
+站点默认分享图 `/og.png`；构建后步骤 `scripts/optimize-dist-images.mjs` 再把 `/og.png` 重写为 `/og.jpg`。
+实测单篇页 `og:image` 已为 `https://www.fupanxinyuan.com/og.jpg`。
+
+**为什么不用海报当分享图**：海报 1080×2000（1:1.85）是竖图，分享卡片位置约 1.91:1 横向，平台会自动裁掉上下大半，
+很可能把标题与结论裁没——比没有图更难看。正解是单独做一张 1200×630 横版分享图，或定一条「从海报哪一段裁」的规则。
 
 ---
 
@@ -403,6 +447,8 @@ astro build && node scripts/prune-unpublished-posters.mjs && node scripts/optimi
 - ✅ 第 10 节两项缺陷已修（og:image localhost、缺 canonical/robots/sitemap）
 - ✅ 估值表「来源」列归一为「公开市场数据」（第 12.1 节）
 - ✅ `dist/` 图片压缩构建后步骤：54 MB → **6.0 MB**，海报转同分辨率 WebP、og 图转 JPEG（第 12.2 节）
+- ✅ 4 篇历史迁移草稿（0810/0812/0813/W32）整体删除；线上页数不变（30 页），清掉的是永不进构建的文件（第 13.1 节）
+- ✅ 详情页 `og:image` 兜底到站点默认图，分享单篇不再无图（第 13.2 节）
 
 **待客户甲**
 
@@ -420,6 +466,6 @@ astro build && node scripts/prune-unpublished-posters.mjs && node scripts/optimi
 - ✅ ~~`public/images/posters/` 有 18 个文件（**34.2 MB**）从未被任何 MDX 引用~~
   —— 已由构建后步骤裁剪，**未发布篇目的海报同时不再上线**（见第 12.2 节）
 - ✅ ~~`public/og.png` 为 **2.5 MB**~~ —— 已在 `dist/` 转为 `og.jpg`（92 KB / 1200×800，见第 12.2 节）
-- ⬜ 复盘详情页缺 `og:image`（`data.cover` 未用于复盘），分享单篇无预览图（见第 12.3 节）
+- ⬜ 复盘详情页的**专属横版分享图**（现在是站点默认图兜底，见第 13.2 节）
 - ⬜ `researchNotes` 集合为空，构建期会打印
   `The collection "researchNotes" does not exist or is empty.`（**非错误，构建正常完成**）
