@@ -110,7 +110,14 @@
 - 免责声明：已包含（仅作市场观察，不构成投资建议）
 
 ## 未完成事项
-- **B 侧（博客门户工作台）尚未执行**：本包为 A 侧产物，`src/content/reviews/daily/2026-09-23.mdx`、`public/images/posters/poster-20260923.png` 副本、雪球草稿、`npm run check` / `npm run build`、双 log 追加均未做。等用户说一句即显式声明「进入 B 阶段」后执行。
+- ~~**B 侧（博客门户工作台）尚未执行**：本包为 A 侧产物，`src/content/reviews/daily/2026-09-23.mdx`、`public/images/posters/poster-20260923.png` 副本、雪球草稿、`npm run check` / `npm run build`、双 log 追加均未做。等用户说一句即显式声明「进入 B 阶段」后执行。~~
+  → **已执行（2026-09-24，用户「那完成刚做的日报最后程序」→ 显式声明进入 B 阶段）**：
+  - `src/content/reviews/daily/2026-09-23.mdx` 已建（`status: public`，题眼进 title，三段逐字取自回填稿并带 `**确认原文**` 标记，frontmatter 含飞书 url + revision 606→609 溯源 + `公开市场数据` 不署名口径 + `poster.qa_status: passed`）。
+  - `public/images/posters/poster-20260923.png` 副本已拷，SHA 与源逐字节一致（`ce94e005…`）。
+  - 雪球草稿已按**新纯文本体例重跑**（源改为已建 MDX，非交接单先行版）；粘贴区 531 字、markdown 标记 0。
+  - `npm run check` → **0 错误 0 警告 0 提示**；`npm run build` → **32 页**，`/daily/2026-09-23/` 已入产线，首页「最新日报」已切至 0923，海报已转 WebP 入包、未发布海报被 prune 剪除。
+  - 双 log 已 append：`completion-log.md` 新增 0923 行、`distribution-log.md` 新增 0923 行。
+  - **本机构建坑（已复现三次，建议写进 runbook）**：`npm run build` 会在 `astro build` **已成功、32 页已落盘之后**，于 Vite 清理 `dist/.prerender/.vite` 时撞上沙箱安全删除守卫（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`，阈值 50）。该错误被 Vite 报成 `[ERROR]` 并使 astro 以非零码退出，**但页面并未丢失**；副作用是 `&&` 把后两步 `prune-unpublished-posters.mjs` / `optimize-dist-images.mjs` 短路掉。处置：预先清空 `dist/` 再构建，若仍触发则单独补跑 `npx astro build` + `node scripts/prune-unpublished-posters.mjs` + `node scripts/optimize-dist-images.mjs` 三步（本次即此法，产物完整）。
 - **雪球发布模板已于 2026-09-24 当日改造完成（用户提出 → 同日落地）**：用户两条问题——① 正文摘要段**太多**；② 复制粘贴到雪球**不分行**。定案与落地：
   - 根因：**雪球长文编辑器不支持 markdown**（雪球官方社区有用户明确反馈「复制、粘贴 markdown 格式的文本，表格的文本样式乱掉」），`**加粗**` / `![图片](路径)` / 行首 `-` / `---` 贴进去不会被解析成富文本，加上单换行在粘贴时被合并 → 看着「一坨、不分行」。
   - 改法：雪球正文改为**纯文本粘贴版**（去掉全部 markdown 标记、段落之间留空行、图片改为占位提示行由工具栏手动上传）；摘要改为脚本**逐字截取三句主干**（量价首句 + 结构/大小盘 + 外围），不再整段搬运（用户在三档方案中选定「自动取三句主干」）。
