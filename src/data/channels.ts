@@ -27,12 +27,17 @@ export interface Channel {
   tags: string[];
 }
 
-/** 博客主站链接 = 各渠道唯一通用入口。当前为内网临时地址（Astro 本机预览）；真实域名上线后只在此替换 */
+/** 博客主站链接 = 各渠道唯一通用入口。**站点已于 2026-09-22 上线**（阿里云 DNS + Vercel，国内可访问）。
+ *  改域名只改这里，并同步 `skills/distribute/scripts/distribute.py` 的 `BLOG_URL`。 */
 export const blogUrl = "https://www.fupanxinyuan.com";
 
-/** 关于我（固定文案，各渠道通用） */
+/** 关于我（固定文案，各渠道通用）——**只写身份，不写博客指路** */
+// 2026-09-24：原句尾「完整复盘、历史归档与后续校准见博客「心猿意马的羊｜交易复盘」。」
+// 与分发模板的「我的博客 · 心猿意马的羊｜交易复盘：A 股每日复盘、历史归档与判断校准的唯一入口」
+// 一行内容重复（都提完整复盘 / 历史归档 / 判断校准）。用户拍板合并为「身份一句 + 博客地址」，
+// 故此处只留身份，指路与地址交给各渠道自己的 CTA 行（雪球见 distribute.py 的 BLOG_BRIDGE + blogUrl）。
 export const aboutText =
-  "一个持续记录市场、公开判断边界并回看错误的交易学习者。完整复盘、历史归档与后续校准见博客「心猿意马的羊｜交易复盘」。";
+  "一个持续记录市场、公开判断边界并回看错误的交易学习者。";
 
 /** 固定免责声明 —— 与 docs/content/site-copy.md 第 7 节一字一致 */
 export const disclaimerText =
@@ -53,7 +58,9 @@ export const channels: Channel[] = [
   {
     id: "xueqiu",
     name: "雪球",
-    role: "主打引流战场（打造 IP）：海报 + 题眼/摘要/边界短评 + 关于我/研究工具/标签，引回博客",
+    role: "主打引流战场（打造 IP）：海报 + 题眼/短评（摘要三句主干）/边界 + 关于我（含博客地址）/免责声明/标签，引回博客",
+    // 2026-09-24：删去原 role 里的「研究工具」——派生脚本（distribute.py 的 build_xueqiu）从不输出研究工具块，
+    // 且补回会明显加长帖子、与「帖子文字太多」的诉求相反。此处按脚本实际输出对齐；要加研究工具须同时改模板与脚本。
     status: "active",
     tier: 2,
     posterFile: "poster-{}.png", // 1080×2000 复盘海报

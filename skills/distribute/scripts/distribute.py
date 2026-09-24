@@ -20,7 +20,7 @@ import argparse, re, sys
 from pathlib import Path
 
 # ---- 固定文案（与 src/data/channels.ts 保持一致）----
-ABOUT = "一个持续记录市场、公开判断边界并回看错误的交易学习者。完整复盘、历史归档与后续校准见博客「心猿意马的羊｜交易复盘」。"
+ABOUT = "一个持续记录市场、公开判断边界并回看错误的交易学习者。"
 DISCLAIMER = "本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议、收益承诺、代客理财或具体买卖指令。市场有风险，任何决策都应基于独立判断并由决策者自行承担结果。"
 XUEQIU_TAGS = "#A股复盘 #每日复盘 #交易复盘"
 XUEQIU_TAGS_WEEKLY = "#A股复盘 #周度复盘 #交易复盘"
@@ -28,7 +28,10 @@ XHS_TAGS = "#A股 #每日复盘 #ETF #投资日记"
 # 通用入口 = 个人博客（唯一引流去向）；**站点已于 2026-09-22 上线**，此处与
 # `src/data/channels.ts` 的 blogUrl 保持一致（域名 fupanxinyuan.com），改域名时两处同步。
 BLOG_URL = "https://www.fupanxinyuan.com"
-BLOG_INTRO = "A 股每日复盘、历史归档与判断校准的唯一入口"
+# 2026-09-24：原「我的博客 · 心猿意马的羊｜交易复盘：A 股每日复盘、历史归档与判断校准的唯一入口」
+# 一行，与 channels.ts 的 aboutText 后半句重复（都提完整复盘／历史归档／判断校准）。
+# 用户拍板合并为「身份一句 + 博客地址」，故删去 BLOG_INTRO，只留下面这条桥接语。
+BLOG_BRIDGE = "完整复盘见博客："
 
 def parse_mdx(text: str):
     """解析 frontmatter + 按 ## 章节分割正文。"""
@@ -66,6 +69,60 @@ def strip_marker(s: str) -> str:
 def title_xueqiu(title: str) -> str:
     return title.replace(" / ", "，").replace("/", "，")
 
+# ---- 雪球短评：从摘要里逐字截取三句主干（2026-09-24 改） ----
+# 背景：雪球帖原先整段搬运博客摘要（360–570 字），用户反馈「下面的文字太多」。
+# 规则固定为「量价（首句）+ 结构/大小盘 + 外围」，**只用原文句子、不新增不改写**；
+# 命中不足时按原文顺序补足，最后按原文出现顺序排列。改规则只改这里。
+DIGEST_MAX_SENTENCES = 3
+DIGEST_KW_STRUCT = ("结构", "大小盘", "小盘", "大盘", "两头", "降波")
+DIGEST_KW_OUTER = ("外围", "恒指", "纳指", "标普", "道指", "港股", "美股", "隔夜")
+
+def split_sentences(text: str):
+    """按中英文句末标点切句，保留标点。"""
+    parts = [p for p in re.split(r"(?<=[。！？!?])", (text or "").strip()) if p.strip()]
+    if parts:
+        return parts
+    t = (text or "").strip()
+    return [t] if t else []
+
+def pick_digest(summary: str, max_n: int = DIGEST_MAX_SENTENCES) -> str:
+    """逐字截取三句主干：首句（通常是量价）+ 结构句 + 外围句。
+
+    **逐字**含义：只按句选取、不做句内增删改写。句子里夹带的 markdown 加粗标记
+    （`**`）会被剔除——它是母稿的排版标记，不是内容。
+    注意 `DIGEST_KW_STRUCT` 不要放「指数强于」这类**结论短语**：它会命中「领先指数强于上证」
+    这类句子，把本该给「结构/大小盘」的顺位抢走（2026-09-23 实测踩到）。
+    """
+    sents = split_sentences(summary)
+    if len(sents) <= max_n:
+        return "".join(sents).replace("**", "")
+    picked = [0]
+    for kws in (DIGEST_KW_STRUCT, DIGEST_KW_OUTER):
+        for i, s in enumerate(sents):
+            if i in picked:
+                continue
+            if any(k in s for k in kws):
+                picked.append(i)
+                break
+    for i in range(len(sents)):
+        if len(picked) >= max_n:
+            break
+        if i not in picked:
+            picked.append(i)
+    picked = sorted(set(picked))[:max_n]
+    return "".join(sents[i] for i in picked).replace("**", "")
+
+def bullets_to_plain(block: str) -> str:
+    """markdown 无序列表（- **X**：Y）→ 纯文本「· X：Y」，并去掉加粗标记。"""
+    out = []
+    for line in (block or "").splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        s = re.sub(r"^[-*]\s+", "", s).replace("**", "")
+        out.append("· " + s)
+    return "\n".join(out)
+
 def build_xueqiu(fm, sec, date_stem, month_day):
     title = title_xueqiu(fm.get("title", ""))
     weekly = fm.get("type") == "weekly"
@@ -74,47 +131,45 @@ def build_xueqiu(fm, sec, date_stem, month_day):
     tags = XUEQIU_TAGS_WEEKLY if weekly else XUEQIU_TAGS
     handoff_id = fm.get("id") or f"{fm.get('date','')}-daily"
     poster = Path(fm["poster_src"]).name if fm.get("poster_src") else f"poster-{date_stem}.png"
-    summary = fm.get("summary", "")
-    boundary = sec.get("边界与观察", "")
+    digest = pick_digest(fm.get("summary", ""))
+    boundary = bullets_to_plain(sec.get("边界与观察", ""))
+    head = f"{month_day} {label_head}：{title}"
     return f"""# 雪球发布版 · {fm.get('date','')} {label_kind}（分发草稿）
 
 > 状态：draft（待用户确认后发布）
 > 来源：博客 MDX + `content-inbox/{handoff_id}/handoff.md`（已确认终稿）
-> 用途：雪球发布 = 主图海报 + 突出重点短评（完整长文在个人博客）；题眼/摘要/边界口径逐字取自博客，不新增、不改义。
+> 用途：雪球发布 = 主图海报 + 突出重点短评（完整长文在个人博客）；题眼/短评/边界逐字取自母版，不新增、不改义。
+> **短评生成**：脚本按句自动截取「量价（首句）+ 结构/大小盘 + 外围」三句主干，只用原文句子、不改写。改规则见 `build_xueqiu()` 上方的 `DIGEST_*` 常量。
+> **粘贴说明（2026-09-24 改）**：雪球长文编辑器**不支持 markdown**（官方社区有明确反馈），故正文已改为**纯文本**——去掉 `**`、`![ ]( )`、`-`、`---` 等标记，段落之间留空行。复制时**从「正文（纯文本，直接粘贴）」下面那条分隔线之后开始、整块全选**。若粘贴后段落仍被并成一段，请改为逐段粘贴，或在编辑器里用 Shift+Enter 手动换行。
 > 发布时：上传 `{poster}`（1080×2000 复盘海报）；正文尾部已附博客入口（站点已上线）。
 
 ---
 
-## 标题（发帖用）
+## 标题（发帖用，粘到雪球的标题栏）
 
 ```
-{month_day} {label_head}：{title}
+{head}
 ```
 
-## 正文（Markdown，可直接粘贴雪球长文编辑器）
+## 正文（纯文本，直接粘贴）
 
 ---
 
-**{month_day} {label_head}：{title}**
+{head}
 
-![复盘海报]({poster})
+〔此处插入海报：上传 {poster} 后删掉这一行〕
 
-**{title}**
+{title}
 
-{summary}
+{digest}
 
-**边界与观察**
-
+边界与观察
 {boundary}
 
----
-
-**关于我**：{ABOUT}
-
-**我的博客 · 心猿意马的羊｜交易复盘**：{BLOG_INTRO}
+关于我：{ABOUT}{BLOG_BRIDGE}
 {BLOG_URL}
 
-**免责声明**：{DISCLAIMER}
+免责声明：{DISCLAIMER}
 
 {tags}
 
@@ -122,8 +177,10 @@ def build_xueqiu(fm, sec, date_stem, month_day):
 
 ## 发布核对清单（发布前逐项过）
 
-- [ ] 标题、题眼、摘要、边界与已确认终稿一致（不新增、不改义）
-- [ ] 已上传 `{poster}`（1080×2000 复盘海报）
+- [ ] 标题、题眼、短评、边界与已确认终稿一致（不新增、不改义）
+- [ ] 短评只含母版原文句子（脚本自动截取三句主干，未改写）
+- [ ] 已上传 `{poster}`（1080×2000 复盘海报），并已删掉正文里的「此处插入海报」占位行
+- [ ] 正文里无残留 markdown 标记（`**` / `![` / 行首 `-` / `---`）
 - [ ] 数据来源标注为「公开市场数据」，未补造具体行情提供方
 - [ ] 无持仓、仓位、账户金额、收益截图或具体买卖动作
 - [ ] 免责声明全文与 `docs/content/site-copy.md` 第 7 节一致
