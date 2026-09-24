@@ -127,35 +127,18 @@ def build_xueqiu(fm, sec, date_stem, month_day):
     title = title_xueqiu(fm.get("title", ""))
     weekly = fm.get("type") == "weekly"
     label_kind = "周度复盘" if weekly else "每日复盘"
-    label_head = "周度复盘" if weekly else "收盘复盘"
+    # 标题前缀。2026-09-24 用户反馈「9/23 收盘复盘」里的「收盘」是多余的
+    # （题眼本身已含行情描述），故统一收敛为「复盘」/「周度复盘」。
+    label_head = "周度复盘" if weekly else "复盘"
     tags = XUEQIU_TAGS_WEEKLY if weekly else XUEQIU_TAGS
     handoff_id = fm.get("id") or f"{fm.get('date','')}-daily"
     poster = Path(fm["poster_src"]).name if fm.get("poster_src") else f"poster-{date_stem}.png"
     digest = pick_digest(fm.get("summary", ""))
     boundary = bullets_to_plain(sec.get("边界与观察", ""))
     head = f"{month_day} {label_head}：{title}"
-    return f"""# 雪球发布版 · {fm.get('date','')} {label_kind}（分发草稿）
-
-> 状态：draft（待用户确认后发布）
-> 来源：博客 MDX + `content-inbox/{handoff_id}/handoff.md`（已确认终稿）
-> 用途：雪球发布 = 主图海报 + 突出重点短评（完整长文在个人博客）；题眼/短评/边界逐字取自母版，不新增、不改义。
-> **短评生成**：脚本按句自动截取「量价（首句）+ 结构/大小盘 + 外围」三句主干，只用原文句子、不改写。改规则见 `build_xueqiu()` 上方的 `DIGEST_*` 常量。
-> **粘贴说明（2026-09-24 改）**：雪球长文编辑器**不支持 markdown**（官方社区有明确反馈），故正文已改为**纯文本**——去掉 `**`、`![ ]( )`、`-`、`---` 等标记，段落之间留空行。复制时**从「正文（纯文本，直接粘贴）」下面那条分隔线之后开始、整块全选**。若粘贴后段落仍被并成一段，请改为逐段粘贴，或在编辑器里用 Shift+Enter 手动换行。
-> 发布时：上传 `{poster}`（1080×2000 复盘海报）；正文尾部已附博客入口（站点已上线）。
-
----
-
-## 标题（发帖用，粘到雪球的标题栏）
-
-```
-{head}
-```
-
-## 正文（纯文本，直接粘贴）
-
----
-
-{head}
+    # 2026-09-24 用户反馈：草稿文件头（状态/来源/用途/说明等元信息）不必显示，
+    # 直接给「可直接使用的正文」。故文件体例收敛为「标题行 + 纯文本正文 + 核对清单」三块。
+    return f"""{head}
 
 〔此处插入海报：上传 {poster} 后删掉这一行〕
 

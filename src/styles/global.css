@@ -243,6 +243,25 @@ nav a[aria-current="page"] { color: var(--text); border-bottom: 2px solid var(--
 .prose code { padding: 2px 5px; border: 1px solid var(--line); background: var(--panel); font-size: .88em; }
 .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 
+/* 关键事实：默认折叠（2026-09-24 用户反馈「这一大块太长了」）。
+   用原生 <details>，不依赖 JS，折叠时内容仍留在 HTML 里（利于 SEO / 无障碍）。 */
+.prose details.facts-fold { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--line); }
+.prose details.facts-fold > summary {
+  display: flex; align-items: baseline; gap: 12px; cursor: pointer;
+  font-family: Georgia, "Noto Serif SC", serif; font-size: 25px; font-weight: 400;
+  letter-spacing: -.015em; color: var(--text); list-style: none;
+}
+.prose details.facts-fold > summary::-webkit-details-marker { display: none; }
+.prose details.facts-fold > summary::after {
+  content: "展开 ▾"; margin-left: auto; flex: 0 0 auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 400;
+  letter-spacing: .04em; color: var(--accent); text-decoration: underline; text-underline-offset: 3px;
+}
+.prose details.facts-fold[open] > summary::after { content: "收起 ▴"; }
+.prose details.facts-fold > summary:hover { color: var(--accent); }
+.prose details.facts-fold > *:not(summary) { margin-top: 16px; }
+.prose details.facts-fold > table { margin-top: 20px; }
+
 .article-support { margin-top: 82px; padding-top: 30px; border-top: 1px solid var(--line); }
 .support-heading { margin-bottom: 24px; }
 .support-heading h2 { margin: 8px 0 0; font-family: Georgia, "Noto Serif SC", serif; font-size: 30px; font-weight: 400; }
