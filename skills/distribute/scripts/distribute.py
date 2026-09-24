@@ -74,7 +74,7 @@ def title_xueqiu(title: str) -> str:
 # 规则固定为「量价（首句）+ 结构/大小盘 + 外围」，**只用原文句子、不新增不改写**；
 # 命中不足时按原文顺序补足，最后按原文出现顺序排列。改规则只改这里。
 DIGEST_MAX_SENTENCES = 3
-DIGEST_KW_STRUCT = ("结构", "大小盘", "小盘", "大盘", "两头", "降波")
+DIGEST_KW_STRUCT = ("大小盘", "小盘", "大盘", "微盘", "小票", "两头", "降波")
 DIGEST_KW_OUTER = ("外围", "恒指", "纳指", "标普", "道指", "港股", "美股", "隔夜")
 
 def split_sentences(text: str):
@@ -92,6 +92,8 @@ def pick_digest(summary: str, max_n: int = DIGEST_MAX_SENTENCES) -> str:
     （`**`）会被剔除——它是母稿的排版标记，不是内容。
     注意 `DIGEST_KW_STRUCT` 不要放「指数强于」这类**结论短语**：它会命中「领先指数强于上证」
     这类句子，把本该给「结构/大小盘」的顺位抢走（2026-09-23 实测踩到）。
+    **也不要放裸词「结构」**（2026-09-24 实测）：它会命中「短期**均线结构**转弱」这种
+    *均线*结构句，同样抢走顺位；结构/大小盘用「大小盘/小盘/大盘/微盘/小票」等具体词。
     """
     sents = split_sentences(summary)
     if len(sents) <= max_n:

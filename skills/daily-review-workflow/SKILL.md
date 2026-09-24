@@ -91,6 +91,12 @@ agent_created: true
      --block-id <占位段id> --content - --doc-format markdown --as user
    ```
    注意：**`--content` 用 stdin（`-`）传文件内容**，`--content @file` 相对路径解析会失败。
+   - **单句纯文本段（感悟）用 `block_replace` 可能报 `degrade_code=1011 Instruction produced no document changes`（2026-09-24 踩到，xml 格式同样失败）**：判断段（题眼行 + 正文）与点评段（有序列表）`block_replace` 正常，唯独感悟这种「一整段就一句话、无列表无换行」的占位段会被判为「无改动」。**改用 `str_replace` 定位占位原文即可**：
+     ```text
+     lark-cli docs +update --doc "<url>" --command str_replace \
+       --pattern "<占位段原文>" --content "<感悟句>" --doc-format markdown --as user
+     ```
+     结果等价（段落文字原地替换、块 id 保留），不需要 `--block-id`。**判断依据是报错文案**：见到「no document changes」而重 fetch 确认占位文字仍在，就直接换 `str_replace`，不要反复重试 `block_replace`。
 3. 三段替换之间重 fetch 确认剩余占位段 id 未变。
 4. 复核：重新 fetch markdown，逐项检查锚点（题眼/判断句/点评 1-5/感悟）+ **原始事实记录未被覆盖**（成交、指数、外围各段仍在）+ 占位文字已清除；记录最终 revision。
    - **加一步 revision diff（2026-09-15 起为固定动作）**：`lark-cli docs +fetch --doc "<url>" --doc-format markdown --revision-id <回填前 revision>` 拉回填前版本，与回填后逐行 `difflib.unified_diff`。期望结果是**每个占位段恰好一处 hunk、无其他改动**。0915 实测「3 处 hunk / +13−3 行」——这比逐项关键词检查更能证明「没覆盖原始记录」，成本只有一条命令。
