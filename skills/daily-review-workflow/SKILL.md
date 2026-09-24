@@ -17,7 +17,7 @@ agent_created: true
 3. 海报构建：`../daily-review-notebook-poster/SKILL.md` + 其 `assets/poster-input-template.json` + `scripts/build_poster.py` / `scripts/render_poster.py`
 4. 引流版（若出雪球 3:4 卡）：`../teaser-poster/SKILL.md` + 画布库规范 `../../docs/operations/canvas-library.md`
 5. 分发草稿：`../distribute/SKILL.md` + `scripts/distribute.py`（`--out` 必带；脚本按 MDX frontmatter 自动区分日稿/周稿口径——标题「周度复盘」/海报文件名取 poster.src/来源 content-inbox/<id>/标签，2026-09-08 补丁后周稿无需手工修；属工作台 B）
-6. 网站侧（工作台 B 才读）：`../../docs/operations/publishing-workflow.md`、`../../docs/operations/blog-operating-standard.md`；MDX 正文结构对照最近已建同类型 MDX（daily/weekly 均有先例：导语/关键事实/结构解释/当前判断/边界与观察/点评/感悟，判断点评感悟段标 `**确认原文**` 并逐字取自回填稿）
+6. 网站侧（工作台 B 才读）：`../../docs/operations/publishing-workflow.md`、`../../docs/operations/blog-operating-standard.md`；MDX 正文结构对照最近已建同类型 MDX（daily/weekly 均有先例：**导语 / 关键事实（`<details class="facts-fold">` 折叠住）/ 当前判断 / 边界与观察 / 点评 / 感悟**，判断点评感悟段标 `**确认原文**` 并逐字取自回填稿）。**2026-09-24 起不再写「结构解释」**——它与「收盘点评」各条（指数与个股／大小盘／行业轮动／机构／债市／商品／外围）几乎逐字重复，全库已移除；新稿写了会被视为冗余。
 7. 交接包模板：`../daily-review-notebook-poster/references/handoff-contract.md`（handoff.md 必须按此模板，含海报 SHA-256 与合规检查节）
 8. 估值数据（**周稿含「估值」栏才读**）：`../../docs/operations/valuation-data.md`（数据源/口径/回填命令/新鲜度检查，见 §0.5）
 
@@ -133,7 +133,7 @@ agent_created: true
 
 产物清单与顺序：
 1. handoff.md 已按 §5 ready → 声明进入 B。
-2. **博客 MDX**（`src/content/reviews/{daily,weekly}/`）：仿最近同类型已建 MDX。daily 结构：导语 / 关键事实 / 结构解释 / 当前判断 / 边界与观察 / 收盘点评 / 个人感悟；判断、点评、感悟段以 `**确认原文**` 标记且**逐字**取自回填稿（题眼进 title，不进确认原文段）。frontmatter 必带：id、slug、type、status、date、week_id（weekly）、title（=题眼）、summary、data_as_of、completed_at（真实 preview 时间）、sources（飞书 url + revision + 数据截止逐项标注）、poster.src（public 路径）、disclaimer。`headline_stats`（≤4 组）**仅 weekly 使用**（W34/W36 先例），daily 不填（`content.config.ts` 中为 optional，2026-09-10 校正）。行情来源按 `publishing-workflow.md` §6.1 统一写 `label: 公开市场数据` + `url: null`，**不署名具体提供方、不写「待补」TODO**。
+2. **博客 MDX**（`src/content/reviews/{daily,weekly}/`）：仿最近同类型已建 MDX。daily 结构：**导语 / 关键事实（`<details class="facts-fold"><summary>关键事实</summary>` + 表格 + `</details>`，默认折叠）/ 当前判断 / 边界与观察 / 收盘点评 / 个人感悟**（2026-09-24 起**无「结构解释」**）；weekly 同理，点评章名换「周度点评」；判断、点评、感悟段以 `**确认原文**` 标记且**逐字**取自回填稿（题眼进 title，不进确认原文段）。frontmatter 必带：id、slug、type、status、date、week_id（weekly）、title（=题眼）、summary、data_as_of、completed_at（真实 preview 时间）、sources（飞书 url + revision + 数据截止逐项标注）、poster.src（public 路径）、disclaimer。`headline_stats`（≤4 组）**仅 weekly 使用**（W34/W36 先例），daily 不填（`content.config.ts` 中为 optional，2026-09-10 校正）。行情来源按 `publishing-workflow.md` §6.1 统一写 `label: 公开市场数据` + `url: null`，**不署名具体提供方、不写「待补」TODO**。
 3. **海报 public 副本**：`cp content-inbox/<date>-daily|week>/poster-<stem>.png public/images/posters/poster-<stem>.png`（与 MDX poster.src 对应；海报改稿后必须重拷）。
 4. **雪球草稿**：`python skills/distribute/scripts/distribute.py <mdx> --out content-inbox/<date>-daily|week/`；脚本按 frontmatter type/poster.src 自动处理周稿口径（周度复盘标题、海报文件名、来源路径、`#周度复盘` 标签）。人工核对文末发布核对清单。
 5. **构建预览**：`npm run check`（0 错 0 警）→ `npm run build:preview`（确认 `/daily|weekly/<slug>/` 页生成；末尾 `.prerender` 批量清理告警是沙箱拦截，产物完整即可，非海报临时残留）。
