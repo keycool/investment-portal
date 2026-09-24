@@ -306,6 +306,19 @@ CRED=$(printf "protocol=https\nhost=github.com\n\n" | git credential fill 2>/dev
 TOKEN=$(printf '%s\n' "$CRED" | sed -n 's/^password=//p')
 ```
 
+**★ 若改用脚本（Python）组装，必须用 list 形式调 git，不要 `shell=True`**（2026-09-24 踩坑）：
+Windows 上 `subprocess.run(..., shell=True)` 走的是 **cmd.exe**，而 `printf` 是 bash 内建、cmd 下不存在，
+于是 `printf … | git credential fill` **静默拿不到 token**（现象是脚本报 `NO TOKEN`，且看不到任何报错）。
+正解：
+
+```python
+out = subprocess.run([GIT, "credential", "fill"],
+                     input=b"protocol=https\nhost=github.com\n\n",
+                     capture_output=True).stdout
+```
+
+同理，取「入库态 blob 字节」不要猜 EOL，直接 `git cat-file blob <sha>`（`sha = git rev-parse HEAD:<path>`），SHA 必一致。
+
 （2026-09-23 首次使用，推送 `f8c9567 → 8f730397` 成功，Vercel 由 push 正常触发部署。）
 
 ##### ⚠️ CRLF 坑：blob 必须按「入库形式」算，不能直接用工作区字节
