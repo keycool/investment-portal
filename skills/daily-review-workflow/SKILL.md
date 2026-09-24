@@ -137,6 +137,7 @@ agent_created: true
 3. **海报 public 副本**：`cp content-inbox/<date>-daily|week>/poster-<stem>.png public/images/posters/poster-<stem>.png`（与 MDX poster.src 对应；海报改稿后必须重拷）。
 4. **雪球草稿**：`python skills/distribute/scripts/distribute.py <mdx> --out content-inbox/<date>-daily|week/`；脚本按 frontmatter type/poster.src 自动处理周稿口径（周度复盘标题、海报文件名、来源路径、`#周度复盘` 标签）。人工核对文末发布核对清单。
 5. **构建预览**：`npm run check`（0 错 0 警）→ `npm run build:preview`（确认 `/daily|weekly/<slug>/` 页生成；末尾 `.prerender` 批量清理告警是沙箱拦截，产物完整即可，非海报临时残留）。
+   - **★ 生产构建会「假失败」（2026-09-24 复现 3 次）**：`npm run build` 可能报 `[ERROR] [vite] ✗ Build failed` 并附 `SAFE_DELETE_BULK_CONFIRM_REQUIRED` —— 那是 Vite 清理 `dist/.prerender/.vite`（84–182 文件 > 阈值 50）被沙箱拦下，**报错时页面其实已全部落盘**。先 `find dist -name index.html | wc -l` 数页数；页数对就补跑被 `&&` 短路掉的后两步（`node scripts/prune-unpublished-posters.mjs` + `node scripts/optimize-dist-images.mjs`）。详见 `docs/operations/deployment-runbook.md` §10.5。
 6. **双 log 追加**（真实时间，不补历史缺口）：`docs/operations/completion-log.md`（每交易日一行：终稿确认/交接包接收/网站预览三节点）、`docs/operations/distribution-log.md`（博客主站/雪球/小红书状态 + 备注）。
 7. 海报若当时未目检：MDX/草稿先行；目检定稿后重渲染→重拷 public→补 handoff，才把交接包翻 `ready`。
 
@@ -146,6 +147,9 @@ agent_created: true
 - 但**发布是公开动作**：若用户只点名了部分内容（例：「这四篇走完 B 侧」），**只发布被点名的**，同批已 ready 但未点名的（例：周稿）保持 `preview`，并在汇报里点明日/周进度不一致。
 - 目标为 `public` 时用 `npm run build`（生产）作闸门，比 `build:preview` 更严格——后者对 preview 状态全放行，证明不了上线正确。
 - 时间字段：`completed_at` / `published_at` 取真实时刻，**`completed_at` 不得早于构建真正完成的时点**（2026-09-22 曾误写成递增序列，其中一个值晚于构建完成时刻，已改正）。
+- **推送到 GitHub 会不稳**（`github.com` 常不通、代理端口每次会话都可能变）。顺序：`env | grep -i proxy` 查端口 → `git -c http.proxy= -c https.proxy= push origin main` → 失败则走 **Git Data API 兜底**（见 runbook §10.4；**文本文件必须先做 CRLF→LF 规范化**，否则 tree 校验必被拦）。
+- **线上核验用 `WebFetch`，不要用 curl**（沙箱代理到本站恒 502）。核验三处：详情页渲染完整、列表页已置顶、首页「最新日报」已切换。
+  **首页/列表页缓存可能滞后于详情页** —— 若详情页已上线、列表/首页仍是旧内容，先查本地 `dist/index.html`；本地对就是 **Vercel 边缘缓存未刷新**，TTL 到期自解，不必改代码。
 
 ### 6. 状态登记（B 侧，append-only）
 
