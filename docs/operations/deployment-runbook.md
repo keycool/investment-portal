@@ -341,6 +341,13 @@ git ls-files --eol -- <file>       # 看 w/crlf、w/mixed 等标记
 
 （2026-09-24 第二次使用，推送 `303d9dd7 → 85e7e766` 成功，6/6 blob 通过逐项比对。）
 
+##### 2026-09-26 第三次使用的补充细节
+
+- **POST `/git/commits` 的日期字段必须 ISO 8601**：取本地元数据用 `git show -s --format=%aI/%cI`（%aD/%ad 的人类可读格式会 **422 Unprocessable Entity**，且错误信息不指明是日期）。
+- **API 创建的 commit sha 与本地不同属预期**：即使 message/author/committer 逐项照传，GitHub 侧对 message 末尾换行的规范化仍可能使 sha 分叉（本轮 `e14679c → 48cb559`）。**唯一硬门槛是 tree 一致**（`POST /git/trees` 返回值 == `git rev-parse HEAD^{tree}`），ref 可安全指向 API 侧 sha——脚本里不要对 commit sha 做 assert，否则会在最后一步白白中止。
+- `curl https://api.github.com` 匿名访问根路径返回 **403 属正常**（根端点本就不放行），不代表不可达；可达性以连接是否建立为准。
+- 更新 ref 后**立即试一次** `git fetch origin && git reset --hard origin/main`——本轮 github.com 约 1 分钟后恢复，本地引用即刻对齐（tree 相同，reset 不改工作区）。
+
 ---
 
 ## 10.5 `npm run build` 的「假失败」——**已从根上解除（2026-09-24 晚）**
