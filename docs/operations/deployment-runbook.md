@@ -347,6 +347,7 @@ git ls-files --eol -- <file>       # 看 w/crlf、w/mixed 等标记
 - **API 创建的 commit sha 与本地不同属预期**：即使 message/author/committer 逐项照传，GitHub 侧对 message 末尾换行的规范化仍可能使 sha 分叉（本轮 `e14679c → 48cb559`）。**唯一硬门槛是 tree 一致**（`POST /git/trees` 返回值 == `git rev-parse HEAD^{tree}`），ref 可安全指向 API 侧 sha——脚本里不要对 commit sha 做 assert，否则会在最后一步白白中止。
 - `curl https://api.github.com` 匿名访问根路径返回 **403 属正常**（根端点本就不放行），不代表不可达；可达性以连接是否建立为准。
 - 更新 ref 后**立即试一次** `git fetch origin && git reset --hard origin/main`——本轮 github.com 约 1 分钟后恢复，本地引用即刻对齐（tree 相同，reset 不改工作区）。
+- ⚠️ **fetch 失败时绝不 `reset --hard origin/main`（2026-09-26 实际踩坑）**：`git fetch | tail -1 && git reset --hard origin/main` 这种**管道链会掩盖 fetch 的失败退出码**（tail 恒 0，`&&` 照常放行），reset 拿着**过期的 origin/main** 把本地最新提交从分支上抹掉（内容已在 GitHub 侧、靠 reflog `git reset --hard <本地commit>` 才找回）。纪律：fetch 必须**单独跑、看清退出码**；或者干脆等下次正常 pull，API 兜底后本地 sha 分叉本身无害。
 
 ---
 
