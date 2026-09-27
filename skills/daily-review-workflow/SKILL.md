@@ -47,7 +47,7 @@ agent_created: true
    ```text
    lark-cli drive files list --as user --folder-token Hz7wfK8TdlJHNFdlxVdcshqIntf --order-by EditedTime --direction DESC --page-size 20 --format json
    ```
-   最上方最新编辑的那篇 `2026【N】` 即本周周稿。周稿与日稿差异：母稿**无三段占位段**，只有事实记录（国内/海外/黄金 + 估值栏），三段（本周判断/周度点评/感悟）按 W34 先例**文末追加**回填——先 `--detail with-ids --doc-format xml` 取**文末那个空 `<p id="...">`**（其前通常还有一个空 `<h1>`），再 `block_replace` 该空段落、`--doc-format markdown` + `--content -`，一次写入 `# 本周复盘：`（含三个 `##` 子节）。W36 revision 261→262；W37 revision 339→340。
+   最上方最新编辑的那篇 `2026【N】` 即本周周稿。周稿与日稿差异：母稿**无三段占位段**，只有事实记录（国内/海外/黄金 + 估值栏），三段（本周判断/周度点评/感悟）按 W34 先例**文末追加**回填——先 `--detail with-ids --doc-format xml` 取**文末那个空 `<p id="...">`**（其前通常还有一个空 `<h1>`），再 `block_replace` 该空段落、`--doc-format markdown` + `--content -`，一次写入 `# 本周复盘：`（含三个 `##` 子节）。W36 revision 261→262；W37 revision 339→340；W39 revision 242→243。**周稿 revision diff 的通过标准与日稿不同：恰好 1 处 hunk、纯 `+` 行无 `-` 行**（尾部一次追加；2026-09-26 W39 实测 +23−0），而日稿是「每个占位段恰好一处 hunk、约 +13−3」。
 2. 读取全文：`lark-cli docs +fetch --doc "<url>" --doc-format markdown --as user`。
 3. 记录：内容日期、doc token、revision_id、数据截止日、三段是否占位、事实/数据缺口清单（如成交额空栏）。
 4. **数据缺口先找用户补齐再起草**；补齐后必须重新 fetch 最新 revision 核对（量价方向可能反转——例：0904 母稿初读成交为空，用户回填后是 2.05 万亿 vs 昨 1.78，**放量**而非臆测的缩量）。

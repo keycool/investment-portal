@@ -130,7 +130,7 @@ description: 将已确认的 A 股每日/每周交易复盘制作为暖白线圈
 ## 待办（TODO，暂不阻塞主流程）
 
 - 估值数据完整自动化脚本接线（读 `D:\CC\pe\data` + 线上 ERP → 生成事实底稿 → lark-cli 回填 → 复核）尚未封装为 Skill 内脚本；当前按 `docs/operations/valuation-data.md` 手工执行。
-- 下次周复盘用本 Skill 流程实测一次估值回填（数据日期、block 逐个替换、复核闭环）。
+- ~~下次周复盘用本 Skill 流程实测一次估值回填~~ **已完成（2026-09-26 W39）**：短周（周五中秋休市）end_date=周四即口径完整、6 行 `block_replace` 逐个回填（revision 236→242）、重新 fetch + revision diff 复核闭环；ERP 线上核对一致 5.82。口径经验沉淀在 `daily-review-workflow` SKILL §0.5。
 - 周复盘同款 Skill（`weekly-review-notebook-poster`）待建；当前周复盘沿用本 Skill（type/栏目文案差异在输入 JSON 中体现）。
 - 候选版本（`-vN`）的脚本级支持待加：`build_poster.py` 目前无 `--version` 注入，靠人工在 `--stem` 里加后缀。
 - `build_poster.py` 数值符号一致性校验待加：`direction: green` 时 `value` 不应以 `+` 开头（红=正/涨、绿=负/跌），避免配色与数字矛盾。
