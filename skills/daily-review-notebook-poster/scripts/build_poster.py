@@ -27,13 +27,27 @@ THEME_PAPER = {
     "background:#202C50 url(",
 }
 
+# 中间调浅底画布（2026-09-28 新增，用户授权；首用于「云隙微虹」）：
+#   该类底图灰度 ~153-172，墨色正文（灰 20）对比度 6.5+ 达标，但模板默认强调色
+#   红 #a61f1f（灰 85）/绿 #197458（灰 98）压上去只有 2.6-3.0:1（需 4.5）——深底主题
+#   浅色字更差。专为主题把强调色加深：红 → 深绛 #5F0E0E（灰 ≈46）、绿 → 深松绿
+#   #093225（灰 ≈44），对最差段（验证/总结 bg 灰 164）仍 ≥5.4:1，红涨绿跌语义不变。
+#   墨色 / muted / rule / 页脚衬底沿用 paper，不动底图、不影响其他画布。
+THEME_DEEP = {
+    ":root{--ink:#171411;--red:#a61f1f;--green:#197458;--muted:#5f554b;--rule:#81766b;--footer-bg:rgba(255,252,245,.78)}":
+    ":root{--ink:#171411;--red:#5F0E0E;--green:#093225;--muted:#5f554b;--rule:#81766b;--footer-bg:rgba(255,252,245,.78)}",
+}
+
+THEMES = {"dark": THEME_PAPER, "deep": THEME_DEEP}
+
 def apply_theme(output: str, theme: str) -> str:
-    """theme='dark' 时为深底画布翻浅色系；找不到目标串即报错，不静默跳过。"""
-    if theme != "dark":
+    """theme='dark' 深底画布翻浅色系；'deep' 中间调浅底画布加深强调色。
+    找不到目标串即报错，不静默跳过。"""
+    if theme == "paper":
         return output
-    for old, new in THEME_PAPER.items():
+    for old, new in THEMES[theme].items():
         if old not in output:
-            raise ValueError(f"theme=dark 替换目标未命中，模板可能已变，请核对: {old[:48]}...")
+            raise ValueError(f"theme={theme} 替换目标未命中，模板可能已变，请核对: {old[:48]}...")
         output = output.replace(old, new)
     return output
 
@@ -98,7 +112,7 @@ def render(data, theme="paper"):
     return apply_theme(output, theme)
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__); p.add_argument("input",type=Path); p.add_argument("--output-dir",type=Path,required=True); p.add_argument("--stem",required=True); p.add_argument("--background",type=Path,default=_default_background()); p.add_argument("--theme",choices=["paper","dark"],default="paper",help="paper=浅底画布（默认深色字）；dark=深底画布（翻浅色字，配星云等）"); p.add_argument("--force",action="store_true"); a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__); p.add_argument("input",type=Path); p.add_argument("--output-dir",type=Path,required=True); p.add_argument("--stem",required=True); p.add_argument("--background",type=Path,default=_default_background()); p.add_argument("--theme",choices=["paper","dark","deep"],default="paper",help="paper=浅底画布（默认深色字）；dark=深底画布（翻浅色字，配星云等）；deep=中间调浅底画布（加深红绿强调，配云隙微虹等）"); p.add_argument("--force",action="store_true"); a=p.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9._-]+",a.stem): raise ValueError("invalid --stem")
     data=json.loads(a.input.read_text(encoding="utf-8"));
     if not isinstance(data,dict): raise ValueError("input JSON root must be an object")

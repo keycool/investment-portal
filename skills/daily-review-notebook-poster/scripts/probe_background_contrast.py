@@ -43,6 +43,10 @@ TEXT_BOX = (132, 976)  # 模板 .sheet 的水平范围
 FG = {
     "paper": {"正文": 20, "强调": 85, "页脚": 87},
     "dark": {"正文": 238, "强调": 223, "页脚": 199},
+    # 2026-09-28 新增（用户授权）：中间调浅底画布的「deep」主题——墨色沿用 paper（灰 20），
+    # 强调色加深为深绛 #5F0E0E（灰 ≈46）/ 深松绿 #093225（灰 ≈44），取较差者 46。
+    # 页脚衬底沿用 paper（暖白 rgba(255,252,245,.78)）。与 build_poster.py --theme deep 配套。
+    "deep": {"正文": 20, "强调": 46, "页脚": 87},
 }
 
 # (段落名, y0, y1, {前景色: 最低要求})
@@ -95,6 +99,8 @@ def main() -> int:
     )
     ap.add_argument("background", type=Path)
     ap.add_argument("--dark", action="store_true", help="深底画布（浅色字）")
+    ap.add_argument("--deep", action="store_true",
+                    help="deep 主题（中间调浅底画布、加深红绿强调，配 build_poster.py --theme deep）")
     ap.add_argument("--footer-scrim", default=None,
                     help='页脚衬底 "R,G,B,alpha"，与模板 --footer-bg 一致；有衬底时必须传')
     a = ap.parse_args()
@@ -118,8 +124,17 @@ def main() -> int:
 
     canvas = cover_canvas(bg_path)
     px = canvas.load()
-    theme = "dark（浅色字）" if a.dark else "paper（深色字）"
-    fgs = FG["dark" if a.dark else "paper"]
+    if a.deep and a.dark:
+        print("--deep 与 --dark 互斥", file=sys.stderr)
+        return 2
+    if a.deep:
+        theme = "deep（深色字·加深强调）"
+        fgs = FG["deep"]
+        suggest_scrim = "255,252,245,0.78"
+    else:
+        theme = "dark（浅色字）" if a.dark else "paper（深色字）"
+        fgs = FG["dark" if a.dark else "paper"]
+        suggest_scrim = "32,44,80,0.72" if a.dark else "255,252,245,0.78"
     x0, x1 = TEXT_BOX
     suggest_scrim = "32,44,80,0.72" if a.dark else "255,252,245,0.78"
 
