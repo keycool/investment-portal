@@ -590,6 +590,18 @@ astro build && node scripts/prune-unpublished-posters.mjs && node scripts/optimi
 
 ---
 
+## 15. Vercel 部署失败：GitHub 二级限流（2026-10-12 实例）
+
+**现象**：push 成功（11941d3 已在 GitHub），Vercel 部署报 `GitHub fetch error - status: 403, You have exceeded a secondary rate limit`，页面停在上一篇（10-09）——**线上不坏，只是不更新**。
+
+**定性顺序**（老规矩）：① `ls-remote` 确认内容提交已在 GitHub；② WebFetch/web_reader 查线上确认「旧但健康」；③ 结论 = Vercel 侧拉取被限流，不是我们的提交有问题。
+
+**处置**：等限流窗口（约 2 分钟）→ `git commit --allow-empty -m "chore: retrigger deployment…"` → push 触发 Vercel 重新部署 → 线上三处核验。本轮一次成功。空提交在历史里留一条 chore，换来不用去 Vercel 控制台手工 Redeploy。
+
+**判别要点**：部署失败但 `ls-remote` 能看到提交 → 问题在 Vercel↔GitHub 之间，本地与内容都无辜；此时**不要重做发布动作**（MDX/log 都已就位），只补一个触发器。
+
+---
+
 ## 附：已完成 / 待完成
 
 **已完成（2026-09-22）**
