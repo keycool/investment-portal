@@ -29,28 +29,37 @@ XUEQIU_TAGS_WEEKLY = "#A股复盘 #周度复盘 #交易复盘"
 # 不受「短评逐字取自确认原文」约束；其余曝光操作（关联股票/@今日话题/主页置顶）
 # 是发布时的编辑器操作，统一落在草稿末尾「发布操作 · 曝光技巧」清单节，不进正文。
 STAR_PLAN_TAG = "#雪球星计划#"
-# 2026-10-27 用户定版：短评/边界里出现宽基指数名时，自动转成雪球 $代码$ 关联格式
-# （发布后内容即出现在所关联指数的讨论页）。这是「短评逐字取自确认原文」规则的
-# 唯一许可替换——只替换下列指数名 token，且单趟替换不会重扫已生成代码：
-# 上证50 不转（别于上证指数）；恒生科技与美股三大指数未获授权，不转。
-INDEX_TICKER_RE = re.compile(r"上证指数|上证(?!50)|沪深300|创业板指|创业板(?!指)|恒生指数|恒指")
+# 2026-10-27 用户定版：短评/边界里出现宽基指数名时，自动转成雪球 $代码$ 关联格式。
+# 2026-10-28 用户定版三条原则（雪球单篇最多 3 个代码关联）：
+#   1) 重复的代码只挂第一处；2) 上证指数不挂；3) 按前两条后仍超过 3 个时，第 4 个起不挂。
+# 这是「短评逐字取自确认原文」规则的唯一许可替换；上证50/恒生科技/美股三大指数未获授权，不转。
+INDEX_TICKER_RE = re.compile(r"沪深300|创业板指|创业板(?!指)|恒生指数|恒指")
 INDEX_TICKER_REPL = {
-    "上证指数": "$上证指数(SH000001)$",
-    "上证": "$上证指数(SH000001)$",
     "沪深300": "$沪深300(SH000300)$",
     "创业板指": "$创业板指(SZ399006)$",
     "创业板": "$创业板指(SZ399006)$",
     "恒生指数": "$恒生指数(HKHSI)$",
     "恒指": "$恒生指数(HKHSI)$",
 }
+INDEX_TICKER_LIMIT = 3
 
-def link_index_tickers(text: str) -> str:
-    """把正文里的宽基指数名替换为雪球 $代码$ 关联格式（单趟，不重扫替换结果）。"""
-    return INDEX_TICKER_RE.sub(lambda m: INDEX_TICKER_REPL[m.group(0)], text)
+def make_ticker_linker():
+    """生成带状态的链接器：同一篇文章内重复代码只挂第一处、全篇最多 INDEX_TICKER_LIMIT 个。"""
+    seen = set()
+    def link(text: str) -> str:
+        def _sub(m):
+            tok = m.group(0)
+            code = INDEX_TICKER_REPL[tok]
+            if code in seen or len(seen) >= INDEX_TICKER_LIMIT:
+                return tok
+            seen.add(code)
+            return code
+        return INDEX_TICKER_RE.sub(_sub, text)
+    return link
 
 PUBLISH_OPS = """## 发布操作 · 曝光技巧（雪球创作者中心，2026-10-26 增补）
 
-- [ ] 关联股票：正文里的 $上证指数(SH000001)$、$沪深300(SH000300)$、$创业板指(SZ399006)$（周稿另加 $恒生指数(HKHSI)$）为自动生成的关联代码，发布前确认均渲染为蓝色股票链接（即完成关联，内容会出现在对应指数的讨论页）；只关联宽基指数、不关联个股（避免荐股暗示）
+- [ ] 关联股票：正文最多 3 个 $代码$ 关联（雪球单篇上限；生成三原则——重复代码只挂第一处、上证指数不挂、第 4 个起保持纯文本），发布前确认已挂代码均渲染为蓝色股票链接（即完成关联，内容会出现在对应指数的讨论页）；只关联宽基指数、不关联个股（避免荐股暗示）
 - [ ] 关联话题：确认正文首行 #雪球星计划# 与文末标签行（#A股复盘# 等）发布后均渲染为蓝色话题链接
 - [ ] @今日话题 自荐：发布后在评论区 @今日话题——编辑团队会第一时间收到提示，优质原创有机会推荐至「今日话题」栏目
 - [ ] 主页置顶（可选）：希望访客第一时间看到的篇目（如当周周报复盘）用「主页置顶」
@@ -168,9 +177,10 @@ def build_xueqiu(fm, sec, date_stem, month_day):
     poster = Path(fm["poster_src"]).name if fm.get("poster_src") else f"poster-{date_stem}.png"
     digest = pick_digest(fm.get("summary", ""))
     boundary = bullets_to_plain(sec.get("边界与观察", ""))
-    # 2026-10-27 用户定版：正文里看到挂钩的地方自动生成 $代码$ 关联格式
-    digest = link_index_tickers(digest)
-    boundary = link_index_tickers(boundary)
+    # 2026-10-27 用户定版 + 2026-10-28 三原则：正文挂钩点自动生成 $代码$，重复只挂第一处、上证指数不挂、全篇最多 3 个
+    linker = make_ticker_linker()
+    digest = linker(digest)
+    boundary = linker(boundary)
     head = f"{month_day} {label_head}：{title}"
     # 2026-09-24 用户反馈：草稿文件头（状态/来源/用途/说明等元信息）不必显示，
     # 直接给「可直接使用的正文」。故文件体例收敛为「标题行 + 纯文本正文 + 核对清单」三块。
