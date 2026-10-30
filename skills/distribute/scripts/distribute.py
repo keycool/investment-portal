@@ -155,7 +155,8 @@ def pick_digest(summary: str, max_n: int = DIGEST_MAX_SENTENCES) -> str:
     return "".join(sents[i] for i in picked).replace("**", "")
 
 def bullets_to_plain(block: str) -> str:
-    """markdown 无序列表（- **X**：Y）→ 纯文本「· X：Y」，并去掉加粗标记。"""
+    """markdown 无序列表（- **X**：Y）→ 纯文本「· X：Y」，并去掉加粗标记。
+    条目之间留空行（2026-10-30 用户反馈）：雪球粘贴会把单换行合并成一行，空行才是可靠分段（0924 规则同源）。"""
     out = []
     for line in (block or "").splitlines():
         s = line.strip()
@@ -163,7 +164,7 @@ def bullets_to_plain(block: str) -> str:
             continue
         s = re.sub(r"^[-*]\s+", "", s).replace("**", "")
         out.append("· " + s)
-    return "\n".join(out)
+    return "\n\n".join(out)
 
 def build_xueqiu(fm, sec, date_stem, month_day):
     title = title_xueqiu(fm.get("title", ""))
@@ -195,6 +196,7 @@ def build_xueqiu(fm, sec, date_stem, month_day):
 {digest}
 
 边界与观察
+
 {boundary}
 
 关于我：{ABOUT}{BLOG_BRIDGE}
