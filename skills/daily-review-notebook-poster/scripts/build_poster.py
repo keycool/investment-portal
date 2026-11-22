@@ -15,14 +15,19 @@ POSTER_KIND = {
 }
 
 # 深底画布（如「星云随笔」深靛蓝底）需要把文字翻成浅色系，否则模板默认深色字不可读。
-# 沿用 2026-09-09 星云版定版配色，逐字一致，不要临场调。
+# 2026-11-22 用户定版锐利化标准（取代 2026-09-09 星云版配色）：楷体 400 在深底浅字下
+#   笔画发虚（W47 用户反馈「模糊、要锐利」），定版 = 前景纯白 ink #FFFFFF + 强调色提亮
+#   （red #FFE9C0 / green #C4EADC）+ 正文 font-weight:600（.sheet 注入）。
+#   2026-11-20 首轮提亮（#FDF9EE）为过渡版，2026-11-22 本版为最终标准，勿回退。
 # 2026-09-22 追加 --footer-bg（页脚衬底，用户选定「模板 footer 加浅色衬底」方案）：
 #   页脚是 10px 小字且属合规内容，3:4 底图 cover 到 1080×2000 后页脚易落进底图暗部
 #   （雾海微明实测仅 2.01:1）。衬底**必须随主题取色**——浅底画布用暖白衬底配深色字，
 #   深底画布用深靛衬底配浅色字；否则深底主题下浅字压在浅衬底上会被反噬。
 THEME_PAPER = {
     ":root{--ink:#171411;--red:#a61f1f;--green:#197458;--muted:#5f554b;--rule:#81766b;--footer-bg:rgba(255,252,245,.78)}":
-    ":root{--ink:#F5EEDD;--red:#F2DDB4;--green:#A8D8C4;--muted:#C9C2E8;--rule:#8D84B0;--footer-bg:rgba(32,44,80,.72)}",
+    ":root{--ink:#FFFFFF;--red:#FFE9C0;--green:#C4EADC;--muted:#C9C2E8;--rule:#8D84B0;--footer-bg:rgba(32,44,80,.72)}",
+    ".sheet{position:absolute;":
+    ".sheet{font-weight:600;position:absolute;",
     "background:#b8814f url(":
     "background:#202C50 url(",
 }
