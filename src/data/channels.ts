@@ -43,6 +43,10 @@ export const aboutText =
 export const disclaimerText =
   "本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议、收益承诺、代客理财或具体买卖指令。市场有风险，任何决策都应基于独立判断并由决策者自行承担结果。";
 
+/** 雪球站外精简免责声明 —— 与 docs/content/site-copy.md 第 7 节一致（2026-11-26 授权） */
+export const xueqiuDisclaimerText =
+  "个人市场复盘与学习记录，不构成投资建议或收益承诺，市场有风险，决策须独立。";
+
 export const channels: Channel[] = [
   {
     id: "blog",
@@ -58,13 +62,12 @@ export const channels: Channel[] = [
   {
     id: "xueqiu",
     name: "雪球",
-    role: "主打引流战场（打造 IP）：海报 + 题眼/短评（摘要三句主干）/边界 + 关于我（含博客地址）/免责声明/标签，引回博客",
-    // 2026-09-24：删去原 role 里的「研究工具」——派生脚本（distribute.py 的 build_xueqiu）从不输出研究工具块，
-    // 且补回会明显加长帖子、与「帖子文字太多」的诉求相反。此处按脚本实际输出对齐；要加研究工具须同时改模板与脚本。
+    role: "主打引流战场（纯文字，不再配海报；海报仅留个人博客）：3 短段盘面展开 + 边界观察 + 个人感悟 + 博客链接/精简免责/标签",
+    // 2026-11-26 用户定版：雪球不再配海报图（海报仅作个人博客专属展示），改为 3 短段盘面 + 边界 + 感悟纯文字短帖。
     status: "active",
     tier: 2,
-    posterFile: "poster-{}.png", // 1080×2000 复盘海报
-    longForm: true,
+    posterFile: null,
+    longForm: false,
     cta: blogUrl,
     tags: ["#A股复盘", "#每日复盘", "#交易复盘"],
   },

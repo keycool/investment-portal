@@ -22,6 +22,7 @@ from pathlib import Path
 # ---- 固定文案（与 src/data/channels.ts 保持一致）----
 ABOUT = "一个持续记录市场、公开判断边界并回看错误的交易学习者。"
 DISCLAIMER = "本站内容仅为个人市场复盘、投资交易学习和研究记录，不构成投资建议、收益承诺、代客理财或具体买卖指令。市场有风险，任何决策都应基于独立判断并由决策者自行承担结果。"
+XUEQIU_DISCLAIMER = "个人市场复盘与学习记录，不构成投资建议或收益承诺，市场有风险，决策须独立。"
 XUEQIU_TAGS = "#A股复盘 #每日复盘 #交易复盘"
 XUEQIU_TAGS_WEEKLY = "#A股复盘 #周度复盘 #交易复盘"
 # 2026-10-26 增补（雪球创作者中心《发帖技巧》）：文章开头带 #雪球星计划# 话题，
@@ -71,7 +72,7 @@ BLOG_URL = "https://www.fupanxinyuan.com"
 # 2026-09-24：原「我的博客 · 心猿意马的羊｜交易复盘：A 股每日复盘、历史归档与判断校准的唯一入口」
 # 一行，与 channels.ts 的 aboutText 后半句重复（都提完整复盘／历史归档／判断校准）。
 # 用户拍板合并为「身份一句 + 博客地址」，故删去 BLOG_INTRO，只留下面这条桥接语。
-BLOG_BRIDGE = "完整复盘见博客："
+BLOG_BRIDGE = "完整复盘、海报版与历史归档见博客："
 
 def parse_mdx(text: str):
     """解析 frontmatter + 按 ## 章节分割正文。"""
@@ -166,59 +167,81 @@ def bullets_to_plain(block: str) -> str:
         out.append("· " + s)
     return "\n\n".join(out)
 
+BROAD_INDEX_NAMES = ("沪深300", "上证50", "中证A500", "创业板", "科创50", "中证500", "中证1000", "中证2000", "微盘")
+OUTER_KW = ("外围", "美股", "港股", "恒指", "恒生科技", "纳指", "标普", "道指", "黄金", "隔夜")
+
+def format_market_paragraphs(text: str) -> str:
+    """将判断段正文按「量价与上证 / 宽基结构与板块 / 外围」拆成 3 个空行分隔纯文本短段。
+
+    自动剥离首行「题眼：…」与末尾「主要矛盾是：…」「保留边界：…」「边界在于…」句，保留原文句子、剔除 `**`。
+    """
+    cleaned_lines = [
+        ln for ln in (text or "").replace("**", "").splitlines()
+        if not re.match(r"^\s*题眼[：:]", ln)
+    ]
+    sents = split_sentences("\n".join(cleaned_lines))
+    kept = []
+    for s in sents:
+        st = s.strip()
+        if not st:
+            continue
+        if re.match(r"^(?:主要矛盾|保留边界|边界在于)", st):
+            continue
+        kept.append(st)
+    if len(kept) <= 3:
+        return "\n\n".join(kept)
+    outer_sents, inner_sents = [], []
+    for s in kept:
+        is_outer_kw = any(k in s for k in OUTER_KW)
+        broad_hits = sum(1 for b in BROAD_INDEX_NAMES if b in s)
+        if is_outer_kw and broad_hits < 2:
+            outer_sents.append(s)
+        else:
+            inner_sents.append(s)
+    if len(inner_sents) <= 2:
+        p1, p2 = inner_sents, []
+    else:
+        p1, p2 = inner_sents[:2], inner_sents[2:]
+    paras = ["".join(grp) for grp in (p1, p2, outer_sents) if grp]
+    return "\n\n".join(paras)
+
 def build_xueqiu(fm, sec, date_stem, month_day):
     title = title_xueqiu(fm.get("title", ""))
     weekly = fm.get("type") == "weekly"
-    label_kind = "周度复盘" if weekly else "每日复盘"
-    # 标题前缀。2026-09-24 用户反馈「9/23 收盘复盘」里的「收盘」是多余的
-    # （题眼本身已含行情描述），故统一收敛为「复盘」/「周度复盘」。
     label_head = "周度复盘" if weekly else "复盘"
     tags = XUEQIU_TAGS_WEEKLY if weekly else XUEQIU_TAGS
-    handoff_id = fm.get("id") or f"{fm.get('date','')}-daily"
-    poster = Path(fm["poster_src"]).name if fm.get("poster_src") else f"poster-{date_stem}.png"
-    digest = pick_digest(fm.get("summary", ""))
+    # 2026-11-26 定版：雪球不再配海报，改为 3 短段盘面展开 + 边界观察 + 个人感悟一句；海报保留在个人博客。
+    source_text = strip_marker(sec.get("当前判断", "")) or fm.get("summary", "")
+    market_body = format_market_paragraphs(source_text)
     boundary = bullets_to_plain(sec.get("边界与观察", ""))
+    feeling = strip_marker(sec.get("个人感悟", "")).replace("**", "")
     # 2026-10-27 用户定版 + 2026-10-28 三原则：正文挂钩点自动生成 $代码$，重复只挂第一处、上证指数不挂、全篇最多 3 个
     linker = make_ticker_linker()
-    digest = linker(digest)
+    market_body = linker(market_body)
     boundary = linker(boundary)
     head = f"{month_day} {label_head}：{title}"
-    # 2026-09-24 用户反馈：草稿文件头（状态/来源/用途/说明等元信息）不必显示，
-    # 直接给「可直接使用的正文」。故文件体例收敛为「标题行 + 纯文本正文 + 核对清单」三块。
-    return f"""{head}
-
-〔此处插入海报：上传 {poster} 后删掉这一行〕
-
-{STAR_PLAN_TAG}
-
-{title}
-
-{digest}
-
-边界与观察
-
-{boundary}
-
-关于我：{ABOUT}{BLOG_BRIDGE}
-{BLOG_URL}
-
-免责声明：{DISCLAIMER}
-
-{tags}
+    parts = [head, STAR_PLAN_TAG, market_body]
+    if boundary:
+        parts.append(f"接下来看：\n\n{boundary}")
+    if feeling:
+        parts.append(feeling)
+    parts.append(f"{BLOG_BRIDGE}{BLOG_URL}")
+    parts.append(f"免责声明：{XUEQIU_DISCLAIMER}")
+    parts.append(tags)
+    body = "\n\n".join(p for p in parts if p)
+    return f"""{body}
 
 ---
 
 ## 发布核对清单（发布前逐项过）
 
-- [ ] 标题、题眼、短评、边界与已确认终稿一致（不新增、不改义）
-- [ ] 短评只含母版原文句子（脚本自动截取三句主干，未改写）
-- [ ] 已上传 `{poster}`（1080×2000 复盘海报），并已删掉正文里的「此处插入海报」占位行
+- [ ] 标题、盘面、边界、感悟与已确认终稿一致（不新增、不改义）
+- [ ] 纯文字发帖（不配海报；海报版仅留个人博客，可发雪球文章或讨论）
 - [ ] 正文里无残留 markdown 标记（`**` / `![` / 行首 `-` / `---`）
 - [ ] 数据来源标注为「公开市场数据」，未补造具体行情提供方
 - [ ] 无持仓、仓位、账户金额、收益截图或具体买卖动作
-- [ ] 免责声明全文与 `docs/content/site-copy.md` 第 7 节一致
+- [ ] 免责声明与 `docs/content/site-copy.md` 第 7 节雪球精简口径一致
 - [ ] 博客入口链接无误（站点已上线：{BLOG_URL}）
-- [ ] 发布到雪球「文章」而非「讨论」
 
 ---
 
