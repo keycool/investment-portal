@@ -1,6 +1,6 @@
 ---
 name: daily-review-workflow
-description: A 股每日/每周复盘从「用户告知已做复盘」到「content-inbox ready 交接包」的端到端编排（工作台 A 全流程 + 工作台 B 交接分工）。触发词：今天交易复盘做了、做今日复盘海报、出雪球海报、复盘收尾、复盘交接、三段起草确认、回填飞书、复盘流程。负责：发现飞书母稿（按日期搜索，不靠猜）→ 三段起草与用户过目确认（题眼/感悟候选制、点评 1-5 分点）→ 一次性回填飞书并复核 → 复盘海报（含雪球展示版背景用户选定流程）与双轨 QA → content-inbox 交接包（handoff 按契约含 SHA/合规节）。不负责且禁止：在 A 流程中修改 src/content/reviews、public、docs、站点代码（写入边界只在 content-inbox；MDX 编辑与发布属博客门户工作台）；不生成投资建议、不执行交易、不发布外部平台。
+description: A 股每日/每周复盘从「用户告知已做复盘」到「content-inbox ready 交接包」的端到端编排（工作台 A 全流程 + 工作台 B 交接分工）。触发词：今天交易复盘做了、做今日复盘海报、复盘收尾、复盘交接、三段起草确认、回填飞书、复盘流程。负责：优先从飞书「A股复盘中枢」三表多维表格读取日度记录与标尺（周稿或独立母稿按日期/目录检索）→ 指标判读与三段起草确认 → 一次性归档飞书文档并回填多维表格/标尺 → 博客展示版海报（背景用户选定流程）与双轨 QA → content-inbox 交接包（含博客 MDX 精简定稿 + 雪球纯文字约400字卡兹克短文风草稿）。不负责且禁止：在 A 流程中未声明进入 B 就修改 src/content/reviews、public、docs、站点代码；不生成投资建议、不执行交易、不发布外部平台。
 agent_created: true
 ---
 
@@ -16,8 +16,8 @@ agent_created: true
 2. 海报生成纪律总纲：`../../docs/operations/poster-production-rules.md`（题眼措辞、配色红涨绿跌、QA 探针、备份、临时文件纪律）
 3. 海报构建：`../daily-review-notebook-poster/SKILL.md` + 其 `assets/poster-input-template.json` + `scripts/build_poster.py` / `scripts/render_poster.py`
 4. 引流版（若出雪球 3:4 卡）：`../teaser-poster/SKILL.md` + 画布库规范 `../../docs/operations/canvas-library.md`
-5. 分发草稿：`../distribute/SKILL.md` + `scripts/distribute.py`（`--out` 必带；脚本按 MDX frontmatter 自动区分日稿/周稿口径——标题「周度复盘」/海报文件名取 poster.src/来源 content-inbox/<id>/标签，2026-09-08 补丁后周稿无需手工修；属工作台 B）
-6. 网站侧（工作台 B 才读）：`../../docs/operations/publishing-workflow.md`、`../../docs/operations/blog-operating-standard.md`；MDX 正文结构对照最近已建同类型 MDX（daily/weekly 均有先例：**导语 / 关键事实（`<details class="facts-fold">` 折叠住）/ 当前判断 / 边界与观察 / 点评 / 感悟**，判断点评感悟段标 `**确认原文**` 并逐字取自回填稿）。**导语是唯一例外，不逐字取自回填稿（2026-09-29 定版）**：它是 B 侧编辑摘要，两至三句——盘面概括 + 主要矛盾 + 最重要保留条件，**不得复述「当前判断」原文**（判断全文只在「当前判断」章出现一次；0928/0929 曾整段照搬、0903—0924 另有 8 篇高度重合，已全部返工）。写完自查：导语与判断段肉眼可见地不是同一段文字。**2026-09-24 起不再写「结构解释」**——它与「收盘点评」各条（指数与个股／大小盘／行业轮动／机构／债市／商品／外围）几乎逐字重复，全库已移除；新稿写了会被视为冗余。
+5. 分发草稿：`../distribute/SKILL.md` + `scripts/distribute.py`（`--out` 必带；脚本按 MDX frontmatter 自动区分日稿/周稿口径；属工作台 B）。**2026-11-26 定版**：雪球改纯文字发帖（不再配海报图，海报仅留个人博客）；先由 `distribute.py` 派生 3 短段事实骨架与 `$代码$`（≤3 个、不含上证指数），再参照中枢共享风格卡 `D:\CC\个人自媒体中枢\01-工具\写作与表达工具\style-cards\kazike-style-card.md`（服务 `STYLE-CARDS`）润色至 **约 400 字**（看盘人视角、短句动词、轻微反常识/冷幽默，事实与边界不增不改、感悟逐字保留，文末用 38 字精简免责）。
+6. 网站侧（工作台 B 才读）：`../../docs/operations/publishing-workflow.md`、`../../docs/operations/blog-operating-standard.md`。**2026-11-26 定版**：详情页模板 `ReviewArticle.astro` 已移除顶部 `article-summary`，改为 **标题 → 海报大图** 直接开场；frontmatter `summary` 写 **2 句（约 80–100 字）** 专供首页卡片/列表/SEO；正文结构：**2 句独立导语（约 100–120 字）/ 关键事实（`<details class="facts-fold">` 完整折叠）/ 精简当前判断 / 边界与观察 / 精简收盘点评（周稿换「周度点评」） / 个人感悟**（不改变方向、强度与边界，精简后的判断与点评不标 `**确认原文**`，仅逐字保留的 `## 个人感悟` 标 `**确认原文**`；**2026-09-24 起无「结构解释」**）。写完自查：导语与判断段肉眼可见地不是同一段文字。
 7. 交接包模板：`../daily-review-notebook-poster/references/handoff-contract.md`（handoff.md 必须按此模板，含海报 SHA-256 与合规检查节）
 8. 估值数据（**周稿含「估值」栏才读**）：`../../docs/operations/valuation-data.md`（数据源/口径/回填命令/新鲜度检查，见 §0.5）
 9. 黄白线（领先指数）口径与跟踪规范：`references/yellow-white-line.md`（2026-11-11 新增；定义与数学含义、三条衍生推论、每日采集字段、与全指差值/平均股价的互证关系、正式稿用语规范）
@@ -31,9 +31,17 @@ agent_created: true
 
 ## 完整流程（A：0-5 步 → 交接；B：6-7 步仅提示）
 
-### 0. 发现母稿（飞书，按日期不靠猜）
+### 0. 发现母稿（飞书，多维表格优先 / 文档按日期兜底）
 
-1. 用飞书搜索定位当日文档，**标题通常是纯日期如 `20260904`，不带"复盘"字样**，搜关键词"复盘"会漏：
+**2026-11-26 升级：多维表格中枢入口（日报默认）**
+
+- 飞书多维表格 `A股复盘中枢（日·周·标尺）`（app_token：`VS4pbDYolabfgosl3CocJFiPnyh`）已精简为三张轻量化表：
+  - 日度行情主表 `tblV5f2fqEu1SgPu`（15 列：含多选「上证日K格局」、中证全指、平均股价，及 3 个核心文本列「宽基强弱对比 / 外围港美黄金 / 今日变化与异常」）；
+  - 周度归档表 `tblXrDjREdHqNppz`（11 列）；
+  - 标尺跟踪表 `tbl0odaC5mURIkx6`（6 列，6 把标尺）。
+- **日报标准动作**：① 从 `tblV5f2fqEu1SgPu` 读取当日行 + 从 `tbl0odaC5mURIkx6` 对账 6 把标尺 + 用 tushare 校验客观成交/涨跌/中位数；② 与用户完成共创并确认题眼/判断/点评/感悟；③ 生成并归档飞书独立文档 `YYYYMMDD`（结构：`今日判断 / 重心验票与明日分支 / 市场事实底表 / 收盘点评 / 感悟`）；④ 将归档文档 URL 与核心结论回填 `tblV5f2fqEu1SgPu`，并同步更新 `tbl0odaC5mURIkx6` 的 `最近验证日`（若用户当日改用独立模板文档，仍走下文检索与 `block_replace` 链路；周稿继续按独立文档流程）。
+
+1. 若使用独立飞书文档（周稿或未入表的日稿），用飞书搜索定位当日文档，**标题通常是纯日期如 `20260904`，不带"复盘"字样**，搜关键词"复盘"会漏：
    ```text
    lark-cli drive +search --query "<YYYYMMDD>" --only-title --as user
    ```
@@ -136,7 +144,7 @@ agent_created: true
 
 ### 4. 海报生产 + 双轨 QA
 
-1. **雪球/展示版背景选择（0904 曾漏，必走）**：产出用于雪球的展示版海报前，先列出可选背景并**主动问用户选哪张背景板**（画布库面板 `D:\CC\shared\assets\canvases\gallery.html` 或 `teaser-poster/scripts/list_canvases.py`）→ 用户指定 → 拿几张做尝试版 → 用户看效果 → 定版。用户选定背景后，主海报 1080×2000 从画布库 3:4 背景 cover 裁切（约裁左右 210px）或走 notebook-paper 包，按用户确认结果执行。
+1. **博客展示版海报背景选择（2026-11-26 起海报仅留个人博客，雪球不再配图）**：产出用于博客展示的复盘海报前，先列出可选背景并**主动问用户选哪张背景板**（画布库面板 `D:\CC\shared\assets\canvases\gallery.html` 或 `teaser-poster/scripts/list_canvases.py`）→ 用户指定 → 拿候选做预览版 → 用户看效果 → 定版。用户选定背景后，主海报 1080×2000 从画布库 3:4 背景 cover 裁切（约裁左右 210px）或走 notebook-paper 包，按用户确认结果执行。
    - **周报固定三个默认候选，且必须问（2026-10-18 用户定版双默认；2026-11-04 扩三默认；2026-11-05 用户定版为当前组合）**：周稿海报的背景默认只用 **稿子汇编**（`snowball-editorial-3x4` / 登记文件 `background-v1-logo-v1.png`，paper 主题，mood serious/editorial/archival）、**笔记本纸**（`notebook-paper` / `background-logo-v1.png`，paper 主题）与 **星云随笔**（`xiaohongshu-starry-text-v1`，dreamy/reflective）三个（轻音闲日曾在 11-04 短暂列入，11-05 由星云随笔替换、回归日报可选池）；到海报步**必须主动问用户这次用哪一个**，由用户当场指定后再构建，不得自行默认。日稿不受此限（按日稿的背景选择流程走）。
    - **日报背景避开周报近期用色（2026-10-28 用户定版）**：给日稿出背景建议前，先查**本周/上周周报实际用的背景**（`content-inbox/2026-WXX-weekly/handoff.md` 海报交付节），日报建议**不与周报撞车**——周报刚用过的背景（如 W43 的星云随笔 dark）从日报建议里排除或降权，除非用户主动指定。实例：10-27 日报用了星云 dark（与 W43 周报同款），用户提示「日报尽量不要用周报的默认背景」。
    - **候选清单必须全量（2026-09-10 用户纠正）**：列候选时**从画布库实时列全部背景**——用 `teaser-poster/scripts/list_canvases.py`（或读 `gallery.html` / 各 pack `variants.json` 的 `name_cn`）实时输出，**禁止手写子集**（09-10 曾漏橘猫彩蛋被用户指出）。2026-09-14 实时为 8 个：向水而行 / 笔记本纸 / 专业轨道 / **橘猫彩蛋** / 稿子汇编 / 星云随笔 / 轻音闲日 / 雾海微明；2026-10-18 实时为 11 个（新增云隙微虹 / 虹云掠空 / 雾隐芦花），但**以脚本实时输出为准**。新增背景按 canvas-library 规则入册后自动进入候选。
@@ -174,9 +182,9 @@ agent_created: true
 
 产物清单与顺序：
 1. handoff.md 已按 §5 ready → 声明进入 B。
-2. **博客 MDX**（`src/content/reviews/{daily,weekly}/`）：仿最近同类型已建 MDX。daily 结构：**导语 / 关键事实（`<details class="facts-fold"><summary>关键事实</summary>` + 表格 + `</details>`，默认折叠）/ 当前判断 / 边界与观察 / 收盘点评 / 个人感悟**（2026-09-24 起**无「结构解释」**）；weekly 同理，点评章名换「周度点评」；判断、点评、感悟段以 `**确认原文**` 标记且**逐字**取自回填稿（题眼进 title，不进确认原文段）。**导语例外（2026-09-29 定版）**：写两至三句编辑摘要（盘面概括 + 主要矛盾 + 最重要保留条件），**不复述「当前判断」原文**——判断全文只在「当前判断」章出现一次；与 frontmatter `summary` 同职责但措辞不逐字相同。frontmatter 必带：id、slug、type、status、date、week_id（weekly）、title（=题眼）、summary、data_as_of、completed_at（真实 preview 时间）、sources（飞书 url + revision + 数据截止逐项标注）、poster.src（public 路径）、disclaimer。`headline_stats`（≤4 组）**仅 weekly 使用**（W34/W36 先例），daily 不填（`content.config.ts` 中为 optional，2026-09-10 校正）。行情来源按 `publishing-workflow.md` §6.1 统一写 `label: 公开市场数据` + `url: null`，**不署名具体提供方、不写「待补」TODO**。
+2. **博客 MDX**（`src/content/reviews/{daily,weekly}/`）：仿 `2026-11-26.mdx`（daily）或最近同类型已建 MDX。**2026-11-26 定版结构**：详情页布局 `ReviewArticle.astro` 已移除顶部 `article-summary`，直接以 **`<h1>` 标题 → 海报大图** 开场；正文依次为：**2 句精简导语（约 100–120 字） / 关键事实（`<details class="facts-fold"><summary>关键事实</summary>` + 完整表格 + `</details>`，默认折叠）/ 精简当前判断 / 边界与观察 / 精简收盘点评（周稿换「周度点评」） / 个人感悟**（2026-09-24 起**无「结构解释」**）。**精简原则**：frontmatter `summary`（约 80–100 字、2 句，专供首页/列表卡片与 SEO）与 `## 导语` 均不再整段复述判断全文；`## 当前判断` 与 `## 收盘点评` 在不改原判断方向、强度与边界的前提下做博客可读性精简去重（不再标 `**确认原文**`），仅逐字保留的 `## 个人感悟` 标 `**确认原文**`。frontmatter 必带：id、slug、type、status、date、week_id（weekly）、title（=题眼）、summary、data_as_of、completed_at（真实 preview 时间）、sources（飞书 url + revision + 数据截止逐项标注）、poster.src（public 路径）、disclaimer。`headline_stats`（≤4 组）**仅 weekly 使用**，daily 不填。行情来源按 `publishing-workflow.md` §6.1 统一写 `label: 公开市场数据` + `url: null`，**不署名具体提供方、不写「待补」TODO**。
 3. **海报 public 副本**：`cp content-inbox/<date>-daily|week>/poster-<stem>.png public/images/posters/poster-<stem>.png`（与 MDX poster.src 对应；海报改稿后必须重拷）。
-4. **雪球草稿**：`python skills/distribute/scripts/distribute.py <mdx> --out content-inbox/<date>-daily|week/`；脚本按 frontmatter type/poster.src 自动处理周稿口径（周度复盘标题、海报文件名、来源路径、`#周度复盘` 标签）。人工核对文末发布核对清单。
+4. **雪球草稿（2026-11-26 定版：纯文字 · 卡兹克观察短文风）**：先运行 `python skills/distribute/scripts/distribute.py <mdx> --out content-inbox/<date>-daily|week/` 生成 3 短段事实骨架与 `$代码$` 关联（≤3 个、不含上证指数）；再参照中枢共享风格卡 `D:\CC\个人自媒体中枢\01-工具\写作与表达工具\style-cards\kazike-style-card.md` 润色至 **约 400 字**（看盘人视角、短句动词、轻微反常识/冷幽默；事实数字与边界不增不改、个人感悟保留确认原句、保留空行分段与 38 字精简免责，不配海报图），最后逐项过目文末发布核对清单。
 5. **构建预览**：`npm run check`（0 错 0 警）→ `npm run build:preview`（确认 `/daily|weekly/<slug>/` 页生成；末尾 `.prerender` 批量清理告警是沙箱拦截，产物完整即可，非海报临时残留）。
    - **生产构建已可一次跑通（2026-09-24 晚起）**：此前 `npm run build` 会「假失败」——报 `[ERROR] [vite] ✗ Build failed` 并附 `SAFE_DELETE_BULK_CONFIRM_REQUIRED`（Vite 清 `dist/.prerender/.vite` 被沙箱守卫拦下，其实页面已全部落盘，真正伤害是 `&&` 短路掉后两步）。**根因已解**：`~/.workbuddy/settings.json` 设 `sandbox.safeDeleteBulkThreshold: 99999`（解析器硬上限，写 100000 无效；环境变量只是兜底、会被设置项覆盖）。若在**别的机器/别人的环境**上又遇到该报错，判据与兜底见 `docs/operations/deployment-runbook.md` §10.5：先 `find dist -name index.html | wc -l`，页数对就按 **②prune → ③optimize** 的顺序补跑（**顺序不可颠倒**，否则 24 张海报会被 `prune` 误判为「未引用」删光）。
 6. **双 log 追加**（真实时间，不补历史缺口）：`docs/operations/completion-log.md`（每交易日一行：终稿确认/交接包接收/网站预览三节点）、`docs/operations/distribution-log.md`（博客主站/雪球/小红书状态 + 备注）。
@@ -225,7 +233,7 @@ agent_created: true
 
 - [ ] 三段已确认且有用户明确回复（时间点记入 handoff）
 - [ ] 飞书已一次性回填并复核（锚点 PASS + 原始记录未覆盖 + revision 记录）
-- [ ] 雪球/展示版背景经用户选定（若适用）
+- [ ] 博客展示版海报背景经用户选定（若适用）
 - [ ] 海报 PNG 尺寸正确、程序化探针通过、**用户已目检确认**
 - [ ] handoff.md 符合契约模板（含 SHA-256 与合规检查），位于 content-inbox/<日期>-daily/
 - [ ] 未修改 src/content/reviews / public / docs / 站点代码（若改了：明确进入 B 阶段并登记）

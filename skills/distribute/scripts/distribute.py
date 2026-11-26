@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """从博客 MDX 派生分发草稿（半自动）。
 
-分发结构（2026-08-31 调整）：个人博客 = 中心/最终承接；雪球 = 主打引流战场（active）；
+分发结构（2026-11-26 更新）：个人博客 = 中心/最终承接（完整正文 + 海报展示）；
+雪球 = 主打引流战场（active，纯文字约 400 字三短段盘面 + 边界 + 感悟，不配海报）；
 小红书引流板 = 暂停（paused，默认不产出，恢复时加 --with-xhs）。
 
-单向降级链：博客 MDX（母版）→ 雪球「海报 + 短评」。
-- 雪球 = 主图海报(2000) + 题眼/摘要/边界短评，完整长文在博客。
-- 小红书 = 引流版海报(1440) + 一句话钩子（默认暂停；--with-xhs 时生成）。
-题眼 / 摘要 / 边界口径逐字取自博客，不新增不改义。
-产出是「草稿 + 发布核对清单」，人工逐项过目后才可发布。
+流程：博客 MDX → distribute.py 派生事实骨架与 $代码$ 关联（≤3 个、不含上证指数）→
+人工按中枢共享风格卡（STYLE-CARDS / kazike-style-card.md）润色为约 400 字活人感短评
+（严守数字/结论/边界不增不改、感悟逐字保留），逐项过目发布核对清单后才可发布。
 
 用法:
   python distribute.py <mdx路径> [--date YYYYMMDD] [--out 目录] [--with-xhs]
-  例: python distribute.py src/content/reviews/daily/2026-08-26.mdx
-      → 在当前目录生成 xueqiu-publish-draft-20260826.md（小红书默认暂停）
+  例: python distribute.py src/content/reviews/daily/2026-11-26.mdx --out content-inbox/2026-11-26-daily/
+      → 在指定目录生成 xueqiu-publish-draft-20261126.md（小红书默认暂停）
 """
 from __future__ import annotations
 import argparse, re, sys

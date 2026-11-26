@@ -10,11 +10,11 @@
 
 ## 日常链路
 
-1. 外部工作台读取 `skills/daily-review-notebook-poster/SKILL.md`（复盘海报）与 `skills/teaser-poster/SKILL.md`（引流版）。
-2. 事实、当前判断、收盘点评和个人感悟经过人工确认并回填母稿。
-3. 生成复盘海报（1080×2000 notebook）与引流版（1080×1440 orbit 3:4），完成内容与视觉 QA；生成纪律见 `poster-production-rules.md`。
+1. 日报共创以飞书「A股复盘中枢」三表多维表格（`VS4pbDYolabfgosl3CocJFiPnyh`）+ 归档文档 `YYYYMMDD` 为母稿源；海报制作读取 `skills/daily-review-workflow/SKILL.md` 与 `skills/daily-review-notebook-poster/SKILL.md`。
+2. 事实、当前判断、收盘点评和个人感悟经过人工确认并归档飞书母稿。
+3. 生成 1080×2000 个人博客专属复盘海报，完成程序化 QA 与用户目检定稿（`2026-11-26` 起雪球不再配海报，引流短帖采用纯文字约 400 字卡兹克观察短文风）；生成纪律见 `poster-production-rules.md`。
 4. 按 `references/handoff-contract.md` 投递到 `content-inbox/YYYY-MM-DD-daily/`。
-5. 网站工作台验证状态、来源、日期、免责声明和文件完整性，再编辑 MDX。
+5. 网站工作台验证状态、来源、日期、免责声明和文件完整性，按 `2026-11-26` 精简去重口径编辑 MDX（详情页标题下直接展示海报图）。
 6. 运行 `npm run check` 与 `npm run build:preview`，人工预览通过后才允许升级内容状态。
 7. 发布后的原判断不可覆盖；后续结果只以带日期的校准记录追加。
 
