@@ -33,7 +33,7 @@ const socialImage = data.cover ? data.cover.image.src : undefined;
         {data.status !== "public" && <span class="status-badge">{data.status}</span>}
       </div>
       <h1>{data.title}</h1>
-      <p class="article-summary">{data.summary}</p>
+      {/* 2026-11-26：详情页取消顶部 article-summary，直接以标题 → 海报开场；summary 仅用于 meta description 与列表页卡片。 */}
       {data.poster?.src && (
         <figure class="article-poster">
           <img src={data.poster.src} alt={data.poster.alt} loading="lazy" />
